@@ -14,6 +14,8 @@ In addition you can:
 
 ## Directory Structure
 
+`dist/` - Build artifacts as result of running the build script(s)
+`node_modules/` - Project dependencies from NPM
 `script/` - Build scripts (via webpack)
 `src/` - Source code of the project
 `src/api` - Source code of the back-end API
