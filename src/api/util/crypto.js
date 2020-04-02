@@ -4,6 +4,12 @@ import util from 'util';
 const saltLength = 16; // in bytes
 const partsSeparator = '$';
 
+/**
+ * 
+ * @param {*} srcData 
+ * @param {*} salt 
+ * @param {*} saltRounds 
+ */
 async function hashWithSalt(srcData, salt, saltRounds) {
     const keyLength = 64; // in bytes
     const digestAlgorithm = 'sha512';
