@@ -38,3 +38,21 @@ In addition you can:
 
 * Methods, Procedures, Variables, Constants are [lowerCaseCamelCase](https://en.wikipedia.org/wiki/Camel_case)
 * Classes are [UpperCaseCamelCase](https://en.wikipedia.org/wiki/Camel_case)
+
+## Tech Stack
+
+### Front
+
+HTML, CSS via [Sass](https://sass-lang.com/), [Babel](https://babeljs.io/)ified JavaScript (ES2018), [React](https://reactjs.org/), [Microsoft Office Fabric UI](https://developer.microsoft.com/en-us/fabric#/)
+
+### Back
+
+[Babel](https://babeljs.io/)ified JavaScript (ES2018), [NodeJS](https://nodejs.org/en/), [ExpressJS](https://expressjs.com/)
+
+### Tests
+
+[Mocha](https://mochajs.org/)
+
+### Build system
+
+[Webpack](https://webpack.js.org/)
