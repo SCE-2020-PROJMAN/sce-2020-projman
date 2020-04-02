@@ -26,4 +26,15 @@ In addition you can:
 
 ## Naming Conventions & Style Guide
 
-TODO
+### Files & Directories:
+
+* Singular, [lowerCaseCamelCase](https://en.wikipedia.org/wiki/Camel_case)
+
+### REST API:
+
+* Route names are [lower-kebab-case](https://en.wikipedia.org/wiki/Letter_case#Special_case_styles) using singular form
+
+### Names of things in code
+
+* Methods, Procedures, Variables, Constants are [lowerCaseCamelCase](https://en.wikipedia.org/wiki/Camel_case)
+* Classes are [UpperCaseCamelCase](https://en.wikipedia.org/wiki/Camel_case)
