@@ -10,7 +10,6 @@ deploy:
   provider: heroku
   api_key: $HEROKU_KEY
   skip_cleanup: true
-  run: node dist/prod/
 
 script:
   - npm test
