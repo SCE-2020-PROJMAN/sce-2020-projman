@@ -30,7 +30,7 @@ const configs = [{
     ...basicConfig,
     target: 'node',
     entry: ['@babel/polyfill', path.join(__dirname, 'src', 'api', 'index.js')],
-    externals: [nodeExternals()],
+    externals: [nodeExternals(), 'mysql2'],
     output: {
         filename: 'index.js',
         libraryTarget: 'commonjs2',
