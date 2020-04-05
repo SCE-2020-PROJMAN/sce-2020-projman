@@ -23,6 +23,7 @@ deploy:
   on: *2
 
 script:
+  - npm test
   - npm run build-prod
   - zip -r latest dist/prod
   - mkdir -p dpl_cd_upload
