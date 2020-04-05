@@ -7,24 +7,11 @@ cache:
     - node_modules
 
 deploy:
-- provider: s3
-  access_key_id: $AWS_ACCESS_KEY
-  secret_access_key: $AWS_SECRET_KEY
-  local_dir: dpl_cd_upload
+  provider: heroku
+  api_key: $HEROKU_KEY
   skip_cleanup: true
-  on: &2
-    repo: SCE-2020-PROJMAN/sce-2020-projman
-  bucket: sce-projman-supersami-codedeploy
-  key: latest.zip
-  bundle_type: zip
-  application: sce-projman-supersami
-  deployment_group: projman-deployment
-  region: eu-central-1
-  on: *2
+  run: node dist/prod/
 
 script:
   - npm test
   - npm run build-prod
-  - zip -r latest dist/prod
-  - mkdir -p dpl_cd_upload
-  - mv latest.zip dpl_cd_upload/latest.zip
