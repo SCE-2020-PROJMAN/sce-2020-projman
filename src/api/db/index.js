@@ -1,31 +1,36 @@
 import Sequelize from 'sequelize';
 import models from './model';
 
-if (!process.env.DB_HOST) {
-    throw new Error('Undefined environment variable: DB_HOST');
-}
-
-if (!process.env.DB_NAME) {
-    throw new Error('Undefined environment variable: DB_NAME');
-}
-
-if (!process.env.DB_USERNAME) {
-    throw new Error('Undefined environment variable: DB_USERNAME');
-}
-
-if (!process.env.DB_PASSWORD) {
-    throw new Error('Undefined environment variable: DB_PASSWORD');
+if (process.env.NODE_ENV === 'production') {
+    if (!process.env.DB_HOST) {
+        throw new Error('Undefined environment variable: DB_HOST');
+    }
+    
+    if (!process.env.DB_NAME) {
+        throw new Error('Undefined environment variable: DB_NAME');
+    }
+    
+    if (!process.env.DB_USERNAME) {
+        throw new Error('Undefined environment variable: DB_USERNAME');
+    }
+    
+    if (!process.env.DB_PASSWORD) {
+        throw new Error('Undefined environment variable: DB_PASSWORD');
+    }
 }
 
 const dbConfig = {
-    dialect: process.env.DB_DIALECT || 'mysql',
+    dialect: process.env.DB_DIALECT || 'sqlite',
     host: process.env.DB_HOST || 'localhost',
-    port: process.env.DB_PORT || '3306',
+    port: process.env.DB_PORT,
     name: process.env.DB_NAME,
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     logging: (message) => console.log(message),
 };
+if (dbConfig.dialect === 'sqlite') {
+    dbConfig.storage = 'db.sqlite';
+}
 
 const db = {
     Sequelize: Sequelize,
@@ -34,7 +39,11 @@ const db = {
 };
 
 async function init() {
-    db.sequelize = new Sequelize(dbConfig.name, dbConfig.username, dbConfig.password, dbConfig);
+    if (dbConfig.dialect === 'sqlite') {
+        db.sequelize = new Sequelize(dbConfig);
+    } else {
+        db.sequelize = new Sequelize(dbConfig.name, dbConfig.username, dbConfig.password, dbConfig);
+    }
     
     Object.keys(db.models).forEach(modelName => {
         const modelDef = db.models[modelName];
