@@ -3,7 +3,8 @@
         "build": "node script/build",
         "build-prod": "cross-env NODE_ENV=production npm run build",
         "build-dev": "cross-env NODE_ENV=development npm run build",
-        "test": "cross-env NODE_ENV=test mocha --require @babel/register \"test/**/*.test.js\" --exit",
+        "test": "npm run lint && npm run mocha",
+        "mocha": "cross-env NODE_ENV=test mocha --require @babel/register \"test/**/*.test.js\" --exit",
         "lint": "eslint \"src/**/*.js\"",
         "watch": "node script/watch",
         "start": "node dist/dev/"
