@@ -2,9 +2,6 @@
     "parserOptions": {
         "plugins": ["react"]
     },
-    "ecmaFeatures": {
-        "jsx": true
-    },
     "env": {
         "browser": true
     },
