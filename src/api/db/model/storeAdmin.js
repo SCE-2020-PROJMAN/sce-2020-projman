@@ -1,4 +1,4 @@
-export default (sequelize, dataTypes) => {
+export default (sequelize) => {
     const model = sequelize.define('storeAdmin', {
     }, {
         freezeTableName: true,
