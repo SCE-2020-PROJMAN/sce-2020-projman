@@ -7,7 +7,7 @@
         "mocha": "cross-env NODE_ENV=test mocha --require @babel/register \"test/**/*.test.js\" --exit",
         "lint": "eslint \"src/**/*.js\"",
         "watch": "node script/watch",
-        "start": "node dist/dev/"
+        "start": "nodemon dist/dev/"
     },
     "dependencies": {
         "@babel/polyfill": "^7.8.7",
@@ -16,6 +16,7 @@
         "core-js": "^3.6.4",
         "express": "^4.17.1",
         "mysql2": "^2.1.0",
+        "nodemon": "^2.0.3",
         "office-ui-fabric-react": "^7.105.7",
         "prop-types": "^15.7.2",
         "react": "^16.13.1",
@@ -48,5 +49,9 @@
         "url-loader": "^4.0.0",
         "webpack": "^4.42.1",
         "webpack-node-externals": "^1.7.2"
+    },
+    "nodemonConfig": {
+        "ignore": ["test/*", "doc/*"],
+        "delay": "1000"
     }
 }
