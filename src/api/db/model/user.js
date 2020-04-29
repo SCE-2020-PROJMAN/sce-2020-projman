@@ -1,6 +1,6 @@
 export default (sequelize, dataTypes) => {
     const model = sequelize.define('user', {
-        username: {
+        email: {
             type: dataTypes.STRING,
             allowNull: false,
             primaryKey: true,
@@ -9,22 +9,14 @@ export default (sequelize, dataTypes) => {
             type: dataTypes.STRING,
             allowNull: false,
         },
-        isStudent: {
-            type: dataTypes.BOOLEAN,
-            allowNull: false,
-            defaultValue: false,
-        },
-        isAdmin: {
-            type: dataTypes.BOOLEAN,
-            allowNull: false,
-            defaultValue: false,
-        },
     }, {
         freezeTableName: true,
     });
 
     model.associate = (models) => {
         model.hasMany(models.authToken);
+        model.hasOne(models.customer);
+        model.hasOne(models.admin);
     };
 
     return model;
