@@ -1,7 +1,7 @@
 export default (sequelize, dataTypes) => {
     const model = sequelize.define('productOrder', {
         amount: {
-            type: dataTypes.NUMBER,
+            type: dataTypes.INTEGER,
             allowNull: false,
         },
     }, {
