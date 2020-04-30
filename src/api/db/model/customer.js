@@ -3,6 +3,7 @@ export default (sequelize, dataTypes) => {
         isStudent: {
             type: dataTypes.BOOLEAN,
             allowNull: false,
+            defaultValue: false,
         },
     }, {
         freezeTableName: true,
