@@ -16,7 +16,7 @@ router.post('/login', asyncWrapper(async (req, res) => {
 }));
 
 router.post('/logout', authenticatedMiddleware(), asyncWrapper(async (req, res) => {
-    const controllerResponse = await authController.logout();
+    const controllerResponse = await authController.logout(req.requestingAuthToken.id);
     res.status(controllerResponse.status).send(controllerResponse.body);
 }));
 
