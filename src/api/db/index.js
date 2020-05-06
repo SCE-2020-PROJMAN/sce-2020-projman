@@ -1,5 +1,6 @@
 import Sequelize from 'sequelize';
 import models from './model';
+import cryptoUtil from '../util/crypto';
 
 if (process.env.NODE_ENV === 'production') {
     if (!process.env.DB_HOST) {
@@ -61,6 +62,15 @@ async function init() {
     await db.sequelize.sync();
 
     console.log('Done initializing database');
+
+    const registeredUsers = await db.models.user.count();
+    if (registeredUsers === 0) {
+        console.log('Creating default user');
+        await db.models.user.create({
+            email: 'admin@supersami.co.il',
+            password: await cryptoUtil.hash('Sami123456', 10),
+        });
+    }
 }
 
 init();
