@@ -21,7 +21,6 @@ class RegisterRoute extends React.Component {
 
     handleSubmit(event) {
         event.preventDefault();
-        console.log("submit called");
         this.setState(prevState => ({
             ...prevState,
             error_email: false,
@@ -33,7 +32,7 @@ class RegisterRoute extends React.Component {
             email: this.state.email,
             password: this.state.password,
         })
-            .then(res => {
+            .then(() => {
                 this.setState(prevState => ({
                     ...prevState,
                     success: true,
@@ -43,7 +42,6 @@ class RegisterRoute extends React.Component {
                 }, 2000);
             })
             .catch(err => {
-                console.error(err);
                 if (err.response) {
                     if (err.response.data === 'validation/email') {
                         this.setState(prevState => ({
@@ -79,7 +77,7 @@ class RegisterRoute extends React.Component {
 
     render() {
         return (
-            <form onSubmit={this.handleSubmit} style={{ maxWidth: '1000px', marginTop:'1em',marginLeft:'1em' }}>
+            <form onSubmit={this.handleSubmit} style={{ maxWidth: '1000px', marginTop: '1em', marginLeft: '1em' }}>
                 <TextField
                     label="Email"
                     type="email"
@@ -105,7 +103,7 @@ class RegisterRoute extends React.Component {
                 <PrimaryButton
                     text="Register"
                     type="submit"
-                    style={{marginTop:'1em'}}
+                    style={{ marginTop: '1em' }}
                     disabled={this.state.isSubmitting}
                 />
                 {this.state.success && (
