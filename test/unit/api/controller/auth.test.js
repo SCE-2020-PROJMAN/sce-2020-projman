@@ -234,6 +234,33 @@ describe('login', () => {
         assert.strictEqual(actual.body, expected.body);
     });
 
+    it('Checks that password isn\'t too old', async () => {
+        const expected = {
+            error: true,
+            status: 500,
+            body: 'expiry/password',
+        };
+        const userEmail = 'some@email.com';
+        const actual = await authController.login(userEmail, 'SomePass123', {
+            db: {
+                models: {
+                    user: {
+                        findOne: options => {
+                            assert.strictEqual(options.where.email, userEmail);
+                            return {
+                                email: userEmail,
+                                passwordDate: new Date(0),
+                            };
+                        },
+                    },
+                },
+            },
+        });
+        assert.strictEqual(actual.error, expected.error);
+        assert.strictEqual(actual.status, expected.status);
+        assert.strictEqual(actual.body, expected.body);
+    });
+
     it('Checks that passwords match', async () => {
         const expected = {
             error: true,
@@ -250,6 +277,7 @@ describe('login', () => {
                             return {
                                 email: userEmail,
                                 password: await cryptoUtil.hash('notTheRightPassword', 10),
+                                passwordDate: Date.now(),
                             };
                         },
                     },
@@ -280,6 +308,7 @@ describe('login', () => {
                             return {
                                 email: userEmail,
                                 password: await cryptoUtil.hash(userPassword, 10),
+                                passwordDate: Date.now(),
                             };
                         },
                     },
