@@ -285,3 +285,209 @@ describe('create', () => {
         assert.strictEqual(actual.status, expected.status);
     });
 });
+
+describe('search', () => {
+    const ops = {
+        or: '$or$',
+        substring: '$substring$',
+    };
+
+    describe('Simple', () => {
+        it('Works without parameters', async () => {
+            let calledFindAll = false;
+            await productController.search(undefined, undefined, undefined, undefined, {
+                db: {
+                    Sequelize: {
+                        Op: ops,
+                    },
+                    models: {
+                        product: {
+                            findAll: () => {calledFindAll = true;},
+                        },
+                    },
+                },
+            });
+            assert.strictEqual(calledFindAll, true);
+        });
+    });
+
+    describe('Sort', () => {
+        it('Sorts ascending', async () => {
+            let calledFindAll = false;
+            await productController.search('category=asc', undefined, undefined, undefined, {
+                db: {
+                    Sequelize: {
+                        Op: ops,
+                    },
+                    models: {
+                        product: {
+                            findAll: options => {
+                                calledFindAll = true;
+                                assert.strictEqual(options.order.length, 1);
+                                assert.strictEqual(options.order[0].length, 2);
+                                assert.strictEqual(options.order[0][0], 'category');
+                                assert.strictEqual(options.order[0][1], 'ASC');
+                            },
+                        },
+                    },
+                },
+            });
+            assert.strictEqual(calledFindAll, true);
+        });
+        it('Sorts descending', async () => {
+            let calledFindAll = false;
+            await productController.search('category=Desc', undefined, undefined, undefined, {
+                db: {
+                    Sequelize: {
+                        Op: ops,
+                    },
+                    models: {
+                        product: {
+                            findAll: options => {
+                                calledFindAll = true;
+                                assert.strictEqual(options.order.length, 1);
+                                assert.strictEqual(options.order[0].length, 2);
+                                assert.strictEqual(options.order[0][0], 'category');
+                                assert.strictEqual(options.order[0][1], 'DESC');
+                            },
+                        },
+                    },
+                },
+            });
+            assert.strictEqual(calledFindAll, true);
+        });
+    
+        it('Sorts complex', async () => {
+            let calledFindAll = false;
+            await productController.search('category=asc,name=desc', undefined, undefined, undefined, {
+                db: {
+                    Sequelize: {
+                        Op: ops,
+                    },
+                    models: {
+                        product: {
+                            findAll: options => {
+                                calledFindAll = true;
+                                assert.strictEqual(options.order.length, 2);
+                                assert.strictEqual(options.order[0].length, 2);
+                                assert.strictEqual(options.order[0][0], 'category');
+                                assert.strictEqual(options.order[0][1], 'ASC');
+                                assert.strictEqual(options.order[1][0], 'name');
+                                assert.strictEqual(options.order[1][1], 'DESC');
+                            },
+                        },
+                    },
+                },
+            });
+            assert.strictEqual(calledFindAll, true);
+        });
+    });
+
+    describe('Search', () => {
+        it('Doesn\'t filter if not given', async () => {
+            let calledFindAll = false;
+            await productController.search(undefined, '', undefined, undefined, {
+                db: {
+                    Sequelize: {
+                        Op: ops,
+                    },
+                    models: {
+                        product: {
+                            findAll: options => {
+                                calledFindAll = true;
+                                assert.deepStrictEqual(options.where, {});
+                            },
+                        },
+                    },
+                },
+            });
+            assert.strictEqual(calledFindAll, true);
+        });
+
+        it('Looks for substrings if given', async () => {
+            let calledFindAll = false;
+            const searchText = 'foo';
+            await productController.search(undefined, searchText, undefined, undefined, {
+                db: {
+                    Sequelize: {
+                        Op: ops,
+                    },
+                    models: {
+                        product: {
+                            findAll: options => {
+                                calledFindAll = true;
+                                assert.deepStrictEqual(options.where, {
+                                    [ops.or]: {
+                                        barcode: {
+                                            [ops.substring]: searchText,
+                                        },
+                                        category: {
+                                            [ops.substring]: searchText,
+                                        },
+                                        freeText: {
+                                            [ops.substring]: searchText,
+                                        },
+                                        brand: {
+                                            [ops.substring]: searchText,
+                                        },
+                                        name: {
+                                            [ops.substring]: searchText,
+                                        },
+                                    },
+                                });
+                            },
+                        },
+                    },
+                },
+            });
+            assert.strictEqual(calledFindAll, true);
+        });
+    });
+    
+    describe('Pagination', () => {
+        it('Uses first page if not given', async () => {
+            let calledFindAll = false;
+            const pageSize = 20;
+            await productController.search(undefined, undefined, undefined, pageSize, {
+                db: {
+                    Sequelize: {
+                        Op: ops,
+                    },
+                    models: {
+                        product: {
+                            findAll: options => {
+                                calledFindAll = true;
+                                assert.strictEqual(options.limit, pageSize);
+                                assert.strictEqual(options.offset, 0);
+                            },
+                        },
+                    },
+                },
+            });
+            assert.strictEqual(calledFindAll, true);
+        });
+        
+        it('Calculates the page correctly', async () => {
+            let calledFindAll = false;
+            const pageSize = 20;
+            const pageNumber = 7;
+            await productController.search(undefined, undefined, pageNumber, pageSize, {
+                db: {
+                    Sequelize: {
+                        Op: ops,
+                    },
+                    models: {
+                        product: {
+                            findAll: options => {
+                                calledFindAll = true;
+                                assert.strictEqual(options.limit, pageSize);
+                                assert.strictEqual(options.offset, pageSize * pageNumber);
+                            },
+                        },
+                    },
+                },
+            });
+            assert.strictEqual(calledFindAll, true);
+        });
+    });
+});

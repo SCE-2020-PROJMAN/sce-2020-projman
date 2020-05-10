@@ -56,6 +56,65 @@ async function create(requestingUser, barcode, category, freeText, price, brand,
     return controllerResponse(false, 200);
 }
 
+async function search(sort, search, page = 0, pageSize = 20, dependencies = null) {
+    dependencies = dependencyInjector(['db'], dependencies);
+
+    const sortOrder = [];
+    if (sort && sort !== '') {
+        const sortParts = sort.split(',');
+        sortParts.forEach(part => {
+            const parts = part.split('=');
+            if (parts.length >= 2) {
+                const [column, direction] = parts;
+                const upperDirection = direction.toUpperCase();
+                if (
+                    (upperDirection === 'ASC' || upperDirection === 'DESC') &&
+                    [
+                        'category',
+                        'freeText',
+                        'price',
+                        'brand',
+                        'name',
+                        'studentDiscount',
+                    ].includes(column)
+                ) {
+                    sortOrder.push([column, upperDirection]);
+                }
+            }
+        });
+    }
+
+    const whereObj = (search && search !== '') ? {
+        [dependencies.db.Sequelize.Op.or]: {
+            barcode: {
+                [dependencies.db.Sequelize.Op.substring]: search,
+            },
+            category: {
+                [dependencies.db.Sequelize.Op.substring]: search,
+            },
+            freeText: {
+                [dependencies.db.Sequelize.Op.substring]: search,
+            },
+            brand: {
+                [dependencies.db.Sequelize.Op.substring]: search,
+            },
+            name: {
+                [dependencies.db.Sequelize.Op.substring]: search,
+            },
+        },
+    } : {};
+
+    const products = await dependencies.db.models.product.findAll({
+        order: sortOrder,
+        where: whereObj,
+        limit: pageSize,
+        offset: page * pageSize,
+    });
+    
+    return controllerResponse(false, 200, products);
+}
+
 export default {
     create,
+    search,
 };
