@@ -73,6 +73,11 @@ async function login(email, password, dependencies = null) {
         return controllerResponse(true, 404, 'auth/generic');
     }
 
+    const rotateEveryHowManyMonths = 6;
+    if (moment().diff(moment(user.passwordDate), 'months', true) > rotateEveryHowManyMonths) {
+        return controllerResponse(true, 500, 'expiry/password');
+    }
+
     const passwordsMatch = await cryptoUtil.compare(password, user.password);
     if (!passwordsMatch) {
         return controllerResponse(true, 404, 'auth/generic');

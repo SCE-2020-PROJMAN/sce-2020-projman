@@ -9,6 +9,11 @@ export default (sequelize, dataTypes) => {
             type: dataTypes.STRING,
             allowNull: false,
         },
+        passwordDate: {
+            type: dataTypes.DATE,
+            allowNull: false,
+            defaultValue: dataTypes.NOW,
+        },
     }, {
         freezeTableName: true,
     });
