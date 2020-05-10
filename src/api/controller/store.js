@@ -4,15 +4,11 @@ import controllerResponse from '../util/controllerResponse';
 async function getAll(requestingUser, dependencies = null) {
     dependencies = dependencyInjector(['db'], dependencies);
 
-    if (!requestingUser || !requestingUser.admin) {
-        return controllerResponse(true, 403);
-    }
-
-    const stores = await dependencies.db.store.findAll();
+    const stores = await dependencies.db.models.store.findAll();
     if (!stores || stores.length === 0) {
         return controllerResponse(true, 404);
     }
-    return stores;
+    return controllerResponse(false, 200, stores);
 }
 
 export default {
