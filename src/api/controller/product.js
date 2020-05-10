@@ -104,14 +104,22 @@ async function search(sort, search, page = 0, pageSize = 20, dependencies = null
         },
     } : {};
 
-    const products = await dependencies.db.models.product.findAll({
-        order: sortOrder,
-        where: whereObj,
-        limit: pageSize,
-        offset: page * pageSize,
-    });
+    const [products, count] = await Promise.all([
+        dependencies.db.models.product.findAll({
+            order: sortOrder,
+            where: whereObj,
+            limit: pageSize,
+            offset: page * pageSize,
+        }),
+        dependencies.db.models.product.count({
+            where: whereObj,
+        }),
+    ]);
     
-    return controllerResponse(false, 200, products);
+    return controllerResponse(false, 200, {
+        products: products,
+        pages: Math.ceil(count / pageSize),
+    });
 }
 
 export default {
