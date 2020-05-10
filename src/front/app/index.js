@@ -1,8 +1,11 @@
 import React from 'react';
 import {HashRouter, Route, Switch} from 'react-router-dom'; // Dev: use Router instead BrowserRouter
+import icons from './icons';
 import mainRoute from './routes/main';
 import loginRoute from './routes/login';
 import registerRoute from './routes/register';
+
+icons.initialize();
 
 function App() {
     return (
