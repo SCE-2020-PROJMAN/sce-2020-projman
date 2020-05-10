@@ -303,6 +303,7 @@ describe('search', () => {
                     models: {
                         product: {
                             findAll: () => {calledFindAll = true;},
+                            count: () => 1,
                         },
                     },
                 },
@@ -328,6 +329,7 @@ describe('search', () => {
                                 assert.strictEqual(options.order[0][0], 'category');
                                 assert.strictEqual(options.order[0][1], 'ASC');
                             },
+                            count: () => 1,
                         },
                     },
                 },
@@ -350,6 +352,7 @@ describe('search', () => {
                                 assert.strictEqual(options.order[0][0], 'category');
                                 assert.strictEqual(options.order[0][1], 'DESC');
                             },
+                            count: () => 1,
                         },
                     },
                 },
@@ -375,6 +378,7 @@ describe('search', () => {
                                 assert.strictEqual(options.order[1][0], 'name');
                                 assert.strictEqual(options.order[1][1], 'DESC');
                             },
+                            count: () => 1,
                         },
                     },
                 },
@@ -397,6 +401,7 @@ describe('search', () => {
                                 calledFindAll = true;
                                 assert.deepStrictEqual(options.where, {});
                             },
+                            count: () => 1,
                         },
                     },
                 },
@@ -436,6 +441,7 @@ describe('search', () => {
                                     },
                                 });
                             },
+                            count: () => 1,
                         },
                     },
                 },
@@ -460,6 +466,7 @@ describe('search', () => {
                                 assert.strictEqual(options.limit, pageSize);
                                 assert.strictEqual(options.offset, 0);
                             },
+                            count: () => 1,
                         },
                     },
                 },
@@ -483,6 +490,7 @@ describe('search', () => {
                                 assert.strictEqual(options.limit, pageSize);
                                 assert.strictEqual(options.offset, pageSize * pageNumber);
                             },
+                            count: () => 1,
                         },
                     },
                 },
