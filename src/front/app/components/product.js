@@ -28,6 +28,9 @@ class ProductComponent extends React.Component {
             ...prevState,
             isEditing: !prevState.isEditing,
         }));
+        if ((this.props.isEditing || this.state.isEditing) && this.props.onCancelEdit) {
+            this.props.onCancelEdit();
+        }
     }
 
     onSave() {
@@ -75,7 +78,7 @@ class ProductComponent extends React.Component {
     }
 
     render() {
-        if (this.state.isEditing) {
+        if (this.props.isEditing || this.state.isEditing) {
             return (
                 <div className="product">
                     <div className="header">
@@ -214,12 +217,14 @@ ProductComponent.propTypes = {
     freeText: propTypes.string.isRequired,
     price: propTypes.string.isRequired,
     studentDiscount: propTypes.string.isRequired,
-    isAvailable: propTypes.bool.isRequired,
+    isAvailable: propTypes.bool,
     isLoading: propTypes.bool,
     isStudent: propTypes.bool,
     isEditable: propTypes.bool,
+    isEditing: propTypes.bool,
     onAddToCart: propTypes.func,
     onEdit: propTypes.func,
+    onCancelEdit: propTypes.func,
 };
 
 export default ProductComponent;

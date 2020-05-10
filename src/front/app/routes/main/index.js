@@ -1,10 +1,11 @@
 import React from 'react';
 import {MessageBar, MessageBarType, Spinner, SpinnerSize, TextField, Stack, PrimaryButton, ComboBox} from 'office-ui-fabric-react';
-import StoreSelect from '../components/storeSelect';
-import Product from '../components/product';
-import Paginator from '../components/paginator';
-import util from '../util';
-import apiCall from '../apiCall';
+import StoreSelect from '../../components/storeSelect';
+import Product from '../../components/product';
+import Paginator from '../../components/paginator';
+import util from '../../util';
+import apiCall from '../../apiCall';
+import CreateProduct from './createProduct';
 
 class MainRoute extends React.Component {
     constructor(props) {
@@ -151,6 +152,10 @@ class MainRoute extends React.Component {
                 {this.state.selectedStore ? (
                     <React.Fragment>
                         <h2>Welcome to {util.capitalize(this.state.selectedStore)}</h2>
+
+                        {this.state.isAdmin && (
+                            <CreateProduct store={this.state.selectedStore}/>
+                        )}
 
                         <form onSubmit={() => this.setPage(0)}>
                             <Stack horizontal style={{alignItems: 'flex-end', marginBottom: '1em'}}>
