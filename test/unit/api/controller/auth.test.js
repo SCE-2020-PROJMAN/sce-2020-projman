@@ -413,3 +413,175 @@ describe('logout', () => {
         assert.strictEqual(actual.status, expected.status);
     });
 });
+
+describe('changePassword', () => {
+    it('Checks that email is valid', async () => {
+        const expected = {
+            error: true,
+            status: 400,
+            body: 'validation/email',
+        };
+        const actual = await authController.changePassword('notAnEmail', 'SomePass123', 'SomePass321');
+        assert.strictEqual(actual.error, expected.error);
+        assert.strictEqual(actual.status, expected.status);
+        assert.strictEqual(actual.body, expected.body);
+    });
+    
+    it('Checks that oldPassword is valid', async () => {
+        const expected = {
+            error: true,
+            status: 400,
+            body: 'validation/oldPassword',
+        };
+        const actual = await authController.changePassword('some@email.com', 'notapass', 'SomePass321');
+        assert.strictEqual(actual.error, expected.error);
+        assert.strictEqual(actual.status, expected.status);
+        assert.strictEqual(actual.body, expected.body);
+    });
+
+    it('Checks that newPassword is valid', async () => {
+        const expected = {
+            error: true,
+            status: 400,
+            body: 'validation/newPassword',
+        };
+        const actual = await authController.changePassword('some@email.com', 'SomePass123', 'notapass');
+        assert.strictEqual(actual.error, expected.error);
+        assert.strictEqual(actual.status, expected.status);
+        assert.strictEqual(actual.body, expected.body);
+    });
+    
+    it('Checks that oldPassword != newPassword', async () => {
+        const expected = {
+            error: true,
+            status: 400,
+            body: 'validation/passwordsEqual',
+        };
+        const actual = await authController.changePassword('some@email.com', 'SomePass123', 'SomePass123');
+        assert.strictEqual(actual.error, expected.error);
+        assert.strictEqual(actual.status, expected.status);
+        assert.strictEqual(actual.body, expected.body);
+    });
+
+    it('Checks if user exists', async () => {
+        const expected = {
+            error: true,
+            status: 404,
+            body: 'auth/generic',
+        };
+        const userEmail = 'some@email.com';
+        let calledFindOne = false;
+        const actual = await authController.changePassword(userEmail, 'SomePass123', 'SomePass321', {
+            db: {
+                models: {
+                    user: {
+                        findOne: options => {
+                            assert.strictEqual(options.where.email, userEmail);
+                            calledFindOne = true;
+                            return null;
+                        },
+                    },
+                },
+            },
+        });
+        assert.strictEqual(calledFindOne, true);
+        assert.strictEqual(actual.error, expected.error);
+        assert.strictEqual(actual.status, expected.status);
+        assert.strictEqual(actual.body, expected.body);
+    });
+
+    it('Checks that oldPassword matches current', async () => {
+        const expected = {
+            error: true,
+            status: 404,
+            body: 'auth/generic',
+        };
+        const userEmail = 'some@email.com';
+        const actual = await authController.changePassword(userEmail, 'SomePass123', 'SomePass321', {
+            db: {
+                models: {
+                    user: {
+                        findOne: async options => {
+                            assert.strictEqual(options.where.email, userEmail);
+                            return {
+                                email: userEmail,
+                                password: await cryptoUtil.hash('notTheRightPassword', 10),
+                                passwordDate: Date.now(),
+                            };
+                        },
+                    },
+                },
+            },
+        });
+        assert.strictEqual(actual.error, expected.error);
+        assert.strictEqual(actual.status, expected.status);
+        assert.strictEqual(actual.body, expected.body);
+    });
+
+    it('Updates the password', async () => {
+        const expected = {
+            error: false,
+            status: 200,
+        };
+        const userEmail = 'some@email.com';
+        const oldPassword = 'SomePass123';
+        const newPassword = 'SomePass321';
+        const actual = await authController.changePassword(userEmail, oldPassword, newPassword, {
+            db: {
+                models: {
+                    user: {
+                        findOne: async options => {
+                            assert.strictEqual(options.where.email, userEmail);
+                            return {
+                                email: userEmail,
+                                password: await cryptoUtil.hash(oldPassword, 10),
+                                passwordDate:  Date.now(),
+                            };
+                        },
+                        update: async (values, options) => {
+                            assert.strictEqual(options.where.email, userEmail);
+                            assert.strictEqual(await cryptoUtil.compare(newPassword, values.password), true);
+                        },
+                    },
+                },
+            },
+        });
+        assert.strictEqual(actual.error, expected.error);
+        assert.strictEqual(actual.status, expected.status);
+    });
+
+    it('Updates the passwordDate', async () => {
+        const expected = {
+            error: false,
+            status: 200,
+        };
+        const userEmail = 'some@email.com';
+        const oldPassword = 'SomePass123';
+        const newPassword = 'SomePass321';
+        const oldPasswordDate = Date.now() - 100; // make sure this won't be equal to the new passwordDate, for example if the computer running the tests is too fast
+        const actual = await authController.changePassword(userEmail, oldPassword, newPassword, {
+            db: {
+                models: {
+                    user: {
+                        findOne: async options => {
+                            assert.strictEqual(options.where.email, userEmail);
+                            return {
+                                email: userEmail,
+                                password: await cryptoUtil.hash(oldPassword, 10),
+                                passwordDate: oldPasswordDate,
+                            };
+                        },
+                        update: (values, options) => {
+                            assert.strictEqual(options.where.email, userEmail);
+                            assert.notStrictEqual(values.passwordDate, null);
+                            assert.notStrictEqual(values.passwordDate, undefined);
+                            assert.notStrictEqual(values.passwordDate, oldPasswordDate);
+                        },
+                    },
+                },
+            },
+        });
+        assert.strictEqual(actual.error, expected.error);
+        assert.strictEqual(actual.status, expected.status);
+    });
+});

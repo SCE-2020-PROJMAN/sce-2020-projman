@@ -119,8 +119,54 @@ async function logout(authToken, dependencies = null) {
     return controllerResponse(false);
 }
 
+async function changePassword(email, oldPassword, newPassword, dependencies = null) {
+    dependencies = dependencyInjector(['db'], dependencies);
+
+    if (!validationUtil.isEmail(email)) {
+        return controllerResponse(true, 400, 'validation/email');
+    }
+    if (!validationUtil.isPassword(oldPassword)) {
+        return controllerResponse(true, 400, 'validation/oldPassword');
+    }
+    if (!validationUtil.isPassword(newPassword)) {
+        return controllerResponse(true, 400, 'validation/newPassword');
+    }
+    if (newPassword === oldPassword) {
+        return controllerResponse(true, 400, 'validation/passwordsEqual');
+    }
+
+    email = email.trim().toLowerCase();
+
+    const user = await dependencies.db.models.user.findOne({
+        where: {
+            email: email,
+        }
+    });
+
+    if (!user) {
+        return controllerResponse(true, 404, 'auth/generic');
+    }
+
+    const passwordsMatch = await cryptoUtil.compare(oldPassword, user.password);
+    if (!passwordsMatch) {
+        return controllerResponse(true, 404, 'auth/generic');
+    }
+
+    await dependencies.db.models.user.update({
+        password: await cryptoUtil.hash(newPassword, 10),
+        passwordDate: Date.now(),
+    }, {
+        where: {
+            email: email,
+        },
+    });
+
+    return controllerResponse(false, 200, null);
+}
+
 export default {
     register,
     login,
     logout,
+    changePassword,
 };
