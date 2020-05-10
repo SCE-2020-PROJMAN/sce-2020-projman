@@ -66,10 +66,18 @@ async function init() {
     const registeredUsers = await db.models.user.count();
     if (registeredUsers === 0) {
         console.log('Creating default user');
-        await db.models.user.create({
-            email: 'admin@supersami.co.il',
-            password: await cryptoUtil.hash('Sami123456', 10),
-        });
+        await db.sequelize.transaction(async transaction => {
+            const defaultEmail = 'admin@supersami.co.il';
+            await Promise.all([
+                db.models.user.create({
+                    email: defaultEmail,
+                    password: await cryptoUtil.hash('Sami123456', 10),
+                }, {transaction}),
+                db.models.admin.create({
+                    userEmail: defaultEmail,
+                }, {transaction}),
+            ]);
+        })
     }
 }
 
