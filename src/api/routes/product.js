@@ -20,6 +20,20 @@ router.post('/', authenticatedMiddleware(), asyncWrapper(async (req, res) => {
     res.status(controllerResponse.status).send(controllerResponse.body);
 }));
 
+router.patch('/', authenticatedMiddleware(), asyncWrapper(async (req, res) => {
+    const controllerResponse = await productController.edit(
+        req.requestingUser,
+        req.body.barcode,
+        req.body.category,
+        req.body.freeText,
+        req.body.price,
+        req.body.brand,
+        req.body.name,
+        req.body.studentDiscount,
+    );
+    res.status(controllerResponse.status).send(controllerResponse.body);
+}));
+
 router.get('/search', authenticatedMiddleware(), asyncWrapper(async (req, res) => {
     const controllerResponse = await productController.search(req.query.sort, req.query.search, req.query.page);
     res.status(controllerResponse.status).send(controllerResponse.body);

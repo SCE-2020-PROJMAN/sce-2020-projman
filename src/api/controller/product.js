@@ -56,6 +56,62 @@ async function create(requestingUser, barcode, category, freeText, price, brand,
     return controllerResponse(false, 200);
 }
 
+async function edit(requestingUser, barcode, category, freeText, price, brand, name, studentDiscount, dependencies = null) {
+    dependencies = dependencyInjector(['db'], dependencies);
+
+    if (!requestingUser || !requestingUser.admin) {
+        return controllerResponse(true, 403);
+    }
+
+    // We don't covert `barcode` to Number globally because they can start with 0
+    if (!validationUtil.isNumber(Number(barcode))) {
+        return controllerResponse(true, 400, 'validation/barcode');
+    }
+    if (validationUtil.exists(category) && !validationUtil.isString(category)) {
+        return controllerResponse(true, 400, 'validation/category');
+    }
+    if (validationUtil.exists(freeText) && !validationUtil.isString(freeText)) {
+        return controllerResponse(true, 400, 'validation/freeText');
+    }
+    if (validationUtil.exists(price) && !validationUtil.isNumber(Number(price))) {
+        return controllerResponse(true, 400, 'validation/price');
+    }
+    if (validationUtil.exists(brand) && !validationUtil.isString(brand)) {
+        return controllerResponse(true, 400, 'validation/brand');
+    }
+    if (validationUtil.exists(name) && !validationUtil.isString(name)) {
+        return controllerResponse(true, 400, 'validation/name');
+    }
+    if (validationUtil.exists(studentDiscount) && !validationUtil.isNumber(Number(studentDiscount))) {
+        return controllerResponse(true, 400, 'validation/studentDiscount');
+    }
+
+    const delta = {};
+    const addIfExists = (key, val) => {
+        if (validationUtil.exists(val)) {
+            delta[key] = val;
+        }
+    };
+    addIfExists('category', category);
+    addIfExists('category', category);
+    addIfExists('freeText', freeText);
+    addIfExists('price', price);
+    addIfExists('brand', brand);
+    addIfExists('name', name);
+    addIfExists('studentDiscount', studentDiscount);
+    const [updatedRowsCount] = await dependencies.db.models.product.update(delta, {
+        where: {
+            barcode: barcode,
+        },
+    });
+
+    if (updatedRowsCount === 0) {
+        return controllerResponse(true, 404, 'existance/barcode');
+    }
+
+    return controllerResponse(false, 200);
+}
+
 async function search(sort, search, page = 0, pageSize = 20, dependencies = null) {
     dependencies = dependencyInjector(['db'], dependencies);
 
@@ -124,5 +180,6 @@ async function search(sort, search, page = 0, pageSize = 20, dependencies = null
 
 export default {
     create,
+    edit,
     search,
 };
