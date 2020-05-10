@@ -77,7 +77,7 @@ class RegisterRoute extends React.Component {
 
     render() {
         return (
-            <form onSubmit={this.handleSubmit} style={{ maxWidth: '1000px', marginTop: '1em', marginLeft: '1em' }}>
+            <form onSubmit={this.handleSubmit} style={{ maxWidth: '1000px', margin: 'auto', marginTop: '1em' }}>
                 <TextField
                     label="Email"
                     type="email"
@@ -97,7 +97,7 @@ class RegisterRoute extends React.Component {
                 />
                 {this.state.error_password && (
                     <MessageBar messageBarType={MessageBarType.error}>
-                        At least 8 characters,should contain upper-case, lower-case and a digit.
+                        At least 8 characters, should contain upper-case, lower-case and a digit.
                     </MessageBar>
                 )}
                 <PrimaryButton
