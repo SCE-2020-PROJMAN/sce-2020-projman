@@ -19,7 +19,6 @@
     "rules": {
         "quotes": ["error", "single"],
         "semi": "error",
-        "no-console": "warn",
         "no-dupe-keys": "error",
         "no-duplicate-case": "error",
         "no-extra-semi": "error",
