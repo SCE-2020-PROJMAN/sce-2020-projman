@@ -19,7 +19,16 @@ export default (dbModels = db.models) => asyncWrapper(async (req, res, next) => 
             id: authTokenId,
             active: true,
         },
-        include: [{model: dbModels.user}],
+        include: [{
+            model: dbModels.user,
+            include: [{
+                model: db.models.admin,
+                required: false,
+            }, {
+                model: db.models.customer,
+                required: false,
+            }],
+        }],
     });
 
     if (!authToken) {
