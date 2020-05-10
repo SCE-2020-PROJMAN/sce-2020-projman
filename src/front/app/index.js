@@ -5,6 +5,7 @@ import mainRoute from './routes/main';
 import loginRoute from './routes/login';
 import registerRoute from './routes/register';
 import changePasswordRoute from './routes/changePassword';
+
 icons.initialize();
 
 function App() {
