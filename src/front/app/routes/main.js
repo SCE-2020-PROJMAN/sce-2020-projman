@@ -1,5 +1,5 @@
 import React from 'react';
-import {MessageBar, MessageBarType, Spinner, SpinnerSize} from 'office-ui-fabric-react';
+import {MessageBar, MessageBarType, Spinner, SpinnerSize, TextField, Stack, PrimaryButton, ComboBox} from 'office-ui-fabric-react';
 import StoreSelect from '../components/storeSelect';
 import Product from '../components/product';
 import Paginator from '../components/paginator';
@@ -12,12 +12,16 @@ class MainRoute extends React.Component {
 
         this.selectStore = this.selectStore.bind(this);
         this.setPage = this.setPage.bind(this);
+        this.handleChange = this.handleChange.bind(this);
+        this.handleChangeSort = this.handleChangeSort.bind(this);
 
         this.state = {
             page: 0,
             pages: 0,
             loading: false,
             products: [],
+            sort: '',
+            search: '',
         };
     }
 
@@ -39,8 +43,8 @@ class MainRoute extends React.Component {
             error: false,
         }));
         apiCall('get', 'product/search', {
-            sort: '',
-            search: '',
+            sort: this.state.sort,
+            search: this.state.search,
             page: newPage,
         })
             .then(res => {
@@ -65,6 +69,22 @@ class MainRoute extends React.Component {
             });
     }
 
+    handleChange(key) {
+        return (e, value) => {
+            this.setState(prevState => ({
+                ...prevState,
+                [key]: value,
+            }));
+        };
+    }
+
+    handleChangeSort(e, val) {
+        this.setState(prevState => ({
+            ...prevState,
+            sort: val.key,
+        }));
+    }
+
     render() {
         return (
             <React.Fragment>
@@ -72,6 +92,42 @@ class MainRoute extends React.Component {
                 {this.state.selectedStore ? (
                     <React.Fragment>
                         <h2>Welcome to {util.capitalize(this.state.selectedStore)}</h2>
+
+                        <form onSubmit={() => this.setPage(0)}>
+                            <Stack horizontal style={{alignItems: 'flex-end', marginBottom: '1em'}}>
+                                <Stack.Item grow={1}>
+                                    <TextField
+                                        label="Search"
+                                        value={this.state.search}
+                                        onChange={this.handleChange('search')}
+                                    />
+                                </Stack.Item>
+                                <ComboBox
+                                    label="Sort"
+                                    options={[
+                                        {key: '', text: 'None'},
+                                        {key: 'category=asc', text: 'Category (ascending)'},
+                                        {key: 'category=desc', text: 'Category (descending)'},
+                                        {key: 'price=asc', text: 'Price (ascending)'},
+                                        {key: 'price=desc', text: 'Price (descending)'},
+                                        {key: 'studentDiscount=asc', text: 'Price for students (ascending)'},
+                                        {key: 'studentDiscount=desc', text: 'Price for students (descending)'},
+                                        {key: 'brand=asc', text: 'Brand (ascending)'},
+                                        {key: 'brand=desc', text: 'Brand (descending)'},
+                                        {key: 'name=asc', text: 'Name (ascending)'},
+                                        {key: 'name=desc', text: 'Name (descending)'},
+                                    ]}
+                                    selectedKey={this.state.sort}
+                                    onChange={this.handleChangeSort}
+                                />
+                                <PrimaryButton
+                                    iconProps={{iconName: 'search'}}
+                                    text="Search"
+                                    type="submit"
+                                />
+                            </Stack>
+                        </form>
+
                         {this.state.loading ? (
                             <Spinner
                                 label="Loading . . ."
