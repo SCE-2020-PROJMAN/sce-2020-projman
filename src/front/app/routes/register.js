@@ -97,7 +97,7 @@ class RegisterRoute extends React.Component {
                 />
                 {this.state.error_password && (
                     <MessageBar messageBarType={MessageBarType.error}>
-                        At least 8 characters,should contain upper-case, lower-case and a digit.
+                        At least 8 characters, should contain upper-case, lower-case and a digit.
                     </MessageBar>
                 )}
                 <PrimaryButton
