@@ -34,8 +34,8 @@ class ChangePasswordRoute extends React.Component {
         }));
         apiCall('post', 'auth/change-password', {
             email: this.state.email,
-            oldPassword: this.state.oldPassword,
-            newPassword: this.state.newPassword,
+            oldPassword: this.state.old_password,
+            newPassword: this.state.new_password,
         })
             .then(() => {
                 this.setState(prevState => ({
