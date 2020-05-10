@@ -20,4 +20,9 @@ router.post('/', authenticatedMiddleware(), asyncWrapper(async (req, res) => {
     res.status(controllerResponse.status).send(controllerResponse.body);
 }));
 
+router.get('/search', authenticatedMiddleware(), asyncWrapper(async (req, res) => {
+    const controllerResponse = await productController.search(req.query.sort, req.query.search, req.query.page);
+    res.status(controllerResponse.status).send(controllerResponse.body);
+}));
+
 export default router;
