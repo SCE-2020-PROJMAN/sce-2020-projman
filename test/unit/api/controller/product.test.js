@@ -275,6 +275,7 @@ describe('create', () => {
                         create: (values, options) => {
                             assert.strictEqual(values.productBarcode, barcode);
                             assert.strictEqual(values.storePlace, storePlace);
+                            assert.strictEqual(values.amount, 0);
                             assert.strictEqual(options.transaction, transaction);
                         },
                     },

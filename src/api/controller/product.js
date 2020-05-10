@@ -49,6 +49,7 @@ async function create(requestingUser, barcode, category, freeText, price, brand,
             dependencies.db.models.storeProduct.create({
                 productBarcode: barcode,
                 storePlace: storePlace,
+                amount: 0,
             }, {transaction}),
         ]);
     });
