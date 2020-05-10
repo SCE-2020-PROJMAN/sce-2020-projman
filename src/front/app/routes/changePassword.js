@@ -48,32 +48,33 @@ class ChangePasswordRoute extends React.Component {
             })
             .catch(err => {
                 if (err.response) {
-                    if (err.response.data === 'validation/email') {
-                        this.setState(prevState => ({
-                            ...prevState,
-                            error_email: true,
-                        }));
-                    }
-                    if (err.response.data === 'validation/oldPassword') {
-                        this.setState(prevState => ({
-                            ...prevState,
-                            error_old_password: true,
-                        }));
-                    }
-                    if (err.response.data === 'validation/newPassword') {
-                        this.setState(prevState => ({
-                            ...prevState,
-                            error_new_password: true,
-                        }));
-                    }
-                    if (err.response.data === 'validation/passwordsEqual') {
-                        this.setState(prevState => ({
-                            ...prevState,
-                            error_passwords_equal: true,
-                        }));
+                    switch(err.response.data) {
+                        case 'validation/email':
+                            this.setState(prevState => ({
+                                ...prevState,
+                                error_email: true,
+                            }));
+                            break;
+                        case 'validation/oldPassword':
+                            this.setState(prevState => ({
+                                ...prevState,
+                                error_old_password: true,
+                            }));
+                            break;
+                        case 'validation/newPassword':
+                            this.setState(prevState => ({
+                                ...prevState,
+                                error_new_password: true,
+                            }));
+                            break;
+                        case 'validation/passwordsEqual':
+                            this.setState(prevState => ({
+                                ...prevState,
+                                error_passwords_equal: true,
+                            }));
+                            break;
                     }
                 }
-
             })
             .finally(() => {
                 this.setState(prevState => ({
