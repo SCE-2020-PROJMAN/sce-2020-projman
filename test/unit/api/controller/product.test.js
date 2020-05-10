@@ -286,6 +286,186 @@ describe('create', () => {
     });
 });
 
+describe('edit', () => {
+    it('Checks that requesting exists', async () => {
+        const expected = {
+            error: true,
+            status: 403,
+        };
+        const actual = await productController.edit();
+        assert.strictEqual(actual.error, expected.error);
+        assert.strictEqual(actual.status, expected.status);
+    });
+
+    it('Checks that requesting user is an admin', async () => {
+        const expected = {
+            error: true,
+            status: 403,
+        };
+        const actual = await productController.edit({admin: null});
+        assert.strictEqual(actual.error, expected.error);
+        assert.strictEqual(actual.status, expected.status);
+    });
+
+    it('Checks that barcode exists', async () => {
+        const expected = {
+            error: true,
+            status: 400,
+            body: 'validation/barcode',
+        };
+        const actual = await productController.edit({admin: {}}, undefined);
+        assert.strictEqual(actual.error, expected.error);
+        assert.strictEqual(actual.status, expected.status);
+        assert.strictEqual(actual.body, expected.body);
+    });
+    it('Checks that barcode is a number', async () => {
+        const expected = {
+            error: true,
+            status: 400,
+            body: 'validation/barcode',
+        };
+        const actual = await productController.edit({admin: {}}, 'notanumber');
+        assert.strictEqual(actual.error, expected.error);
+        assert.strictEqual(actual.status, expected.status);
+        assert.strictEqual(actual.body, expected.body);
+    });
+    
+    it('Checks that category is a string', async () => {
+        const expected = {
+            error: true,
+            status: 400,
+            body: 'validation/category',
+        };
+        const actual = await productController.edit({admin: {}}, '01234', 1234);
+        assert.strictEqual(actual.error, expected.error);
+        assert.strictEqual(actual.status, expected.status);
+        assert.strictEqual(actual.body, expected.body);
+    });
+    
+    it('Checks that freeText is a string', async () => {
+        const expected = {
+            error: true,
+            status: 400,
+            body: 'validation/freeText',
+        };
+        const actual = await productController.edit({admin: {}}, '01234', 'category', 1234);
+        assert.strictEqual(actual.error, expected.error);
+        assert.strictEqual(actual.status, expected.status);
+        assert.strictEqual(actual.body, expected.body);
+    });
+    
+    it('Checks that price is a number', async () => {
+        const expected = {
+            error: true,
+            status: 400,
+            body: 'validation/price',
+        };
+        const actual = await productController.edit({admin: {}}, '01234', 'category', 'freeText', 'notanumber');
+        assert.strictEqual(actual.error, expected.error);
+        assert.strictEqual(actual.status, expected.status);
+        assert.strictEqual(actual.body, expected.body);
+    });
+    
+    it('Checks that brand is a string', async () => {
+        const expected = {
+            error: true,
+            status: 400,
+            body: 'validation/brand',
+        };
+        const actual = await productController.edit({admin: {}}, '01234', 'category', 'freeText', '01234', 1234);
+        assert.strictEqual(actual.error, expected.error);
+        assert.strictEqual(actual.status, expected.status);
+        assert.strictEqual(actual.body, expected.body);
+    });
+    
+    it('Checks that name is a string', async () => {
+        const expected = {
+            error: true,
+            status: 400,
+            body: 'validation/name',
+        };
+        const actual = await productController.edit({admin: {}}, '01234', 'category', 'freeText', '01234', 'brand', 1234);
+        assert.strictEqual(actual.error, expected.error);
+        assert.strictEqual(actual.status, expected.status);
+        assert.strictEqual(actual.body, expected.body);
+    });
+
+    it('Checks that studentDiscount is a number', async () => {
+        const expected = {
+            error: true,
+            status: 400,
+            body: 'validation/studentDiscount',
+        };
+        const actual = await productController.edit({admin: {}}, '01234', 'category', 'freeText', '01234', 'brand', 'name', 'notanumber');
+        assert.strictEqual(actual.error, expected.error);
+        assert.strictEqual(actual.status, expected.status);
+        assert.strictEqual(actual.body, expected.body);
+    });
+    
+    it('Checks that product exists', async () => {
+        const expected = {
+            error: true,
+            status: 404,
+            body: 'existance/barcode',
+        };
+        const barcode = '01234';
+        const category = 'category';
+        const freeText = 'freeText';
+        const price = '10.00';
+        const brand = 'brand';
+        const name = 'name';
+        const studentDiscount = '5.0';
+        const actual = await productController.edit({admin: {}}, barcode, category, freeText, price, brand, name, studentDiscount, {
+            db: {
+                models: {
+                    product: {
+                        update: () => {
+                            return [0];
+                        },
+                    },
+                },
+            },
+        });
+        assert.strictEqual(actual.error, expected.error);
+        assert.strictEqual(actual.status, expected.status);
+        assert.strictEqual(actual.body, expected.body);
+    });
+
+    it('Edits a product', async () => {
+        const expected = {
+            error: false,
+            status: 200,
+        };
+        const barcode = '01234';
+        const category = 'category';
+        const freeText = 'freeText';
+        const price = '10.00';
+        const brand = 'brand';
+        const name = 'name';
+        const studentDiscount = '5.0';
+        const actual = await productController.edit({admin: {}}, barcode, category, freeText, price, brand, name, studentDiscount, {
+            db: {
+                models: {
+                    product: {
+                        update: (values, options) => {
+                            assert.strictEqual(values.category, category);
+                            assert.strictEqual(values.freeText, freeText);
+                            assert.strictEqual(values.price, price);
+                            assert.strictEqual(values.brand, brand);
+                            assert.strictEqual(values.name, name);
+                            assert.strictEqual(values.studentDiscount, studentDiscount);
+                            assert.strictEqual(options.where.barcode, barcode);
+                            return [1];
+                        },
+                    },
+                },
+            },
+        });
+        assert.strictEqual(actual.error, expected.error);
+        assert.strictEqual(actual.status, expected.status);
+    });
+});
+
 describe('search', () => {
     const ops = {
         or: '$or$',
