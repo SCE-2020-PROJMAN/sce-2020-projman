@@ -12,6 +12,9 @@ import {
     faShekelSign,
     faCartPlus,
     faSearch,
+    faSave,
+    faTimes,
+    faEdit,
 } from '@fortawesome/free-solid-svg-icons';
 
 const iconMap = {
@@ -25,6 +28,9 @@ const iconMap = {
     shekel: faShekelSign,
     cartPlus: faCartPlus,
     search: faSearch,
+    save: faSave,
+    cancel: faTimes,
+    edit: faEdit,
 };
 
 function initialize() {

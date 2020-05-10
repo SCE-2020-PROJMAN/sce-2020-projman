@@ -25,4 +25,9 @@ router.post('/change-password', asyncWrapper(async (req, res) => {
     res.status(controllerResponse.status).send(controllerResponse.body);
 }));
 
+router.get('/who-am-i', authenticatedMiddleware(), (req, res) => {
+    const controllerResponse = authController.whoAmI(req.requestingUser);
+    res.status(controllerResponse.status).send(controllerResponse.body);
+});
+
 export default router;

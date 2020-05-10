@@ -164,9 +164,25 @@ async function changePassword(email, oldPassword, newPassword, dependencies = nu
     return controllerResponse(false, 200, null);
 }
 
+function whoAmI(requestingUser) {
+    if (!validationUtil.exists(requestingUser)) {
+        return controllerResponse(true, 403, '');
+    }
+
+    const isAdmin = !!requestingUser.admin;
+    const isCustomer = !!requestingUser.customer;
+    const isStudent = isCustomer && !!requestingUser.customer.isStudent;
+    return controllerResponse(false, 200, {
+        isAdmin,
+        isCustomer,
+        isStudent,
+    });
+}
+
 export default {
     register,
     login,
     logout,
     changePassword,
+    whoAmI,
 };
