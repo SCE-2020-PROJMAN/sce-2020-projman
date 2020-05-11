@@ -10,6 +10,10 @@ function isString(o) {
     return exists(o) && typeof o === 'string' || o instanceof String;
 }
 
+function isUrl(o) {
+    return isString(o); // TODO
+}
+
 function isNumber(o) {
     return exists(o) && (typeof o === 'number' || o instanceof Number) && !isNaN(o);
 }
@@ -64,6 +68,7 @@ export default {
     exists,
     isBool,
     isString,
+    isUrl,
     isNumber,
     isArray,
     isEmail,

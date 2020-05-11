@@ -20,6 +20,11 @@ router.post('/', authenticatedMiddleware(), asyncWrapper(async (req, res) => {
     res.status(controllerResponse.status).send(controllerResponse.body);
 }));
 
+router.post('/:barcode/image', authenticatedMiddleware(), asyncWrapper(async (req, res) => {
+    const controllerResponse = await productController.setImages(req.requestingUser, req.params.barcode, req.body.imageUrls);
+    res.status(controllerResponse.status).send(controllerResponse.body);
+}));
+
 router.patch('/:barcode', authenticatedMiddleware(), asyncWrapper(async (req, res) => {
     const controllerResponse = await productController.edit(
         req.requestingUser,

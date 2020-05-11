@@ -831,4 +831,112 @@ describe('product controller', () => {
             assert.strictEqual(actual.status, expected.status);
         });
     });
+
+    describe('setImages', () => {
+        it('Checks that requesting user exists', async () => {
+            const expected = {
+                error: true,
+                status: 403,
+            };
+            const actual = await productController.setImages();
+            assert.strictEqual(actual.error, expected.error);
+            assert.strictEqual(actual.status, expected.status);
+        });
+    
+        it('Checks that requesting user is an admin', async () => {
+            const expected = {
+                error: true,
+                status: 403,
+            };
+            const actual = await productController.setImages({admin: null});
+            assert.strictEqual(actual.error, expected.error);
+            assert.strictEqual(actual.status, expected.status);
+        });
+    
+        it('Checks that barcode exists', async () => {
+            const expected = {
+                error: true,
+                status: 400,
+                body: 'validation/barcode',
+            };
+            const actual = await productController.setImages({admin: {}}, undefined);
+            assert.strictEqual(actual.error, expected.error);
+            assert.strictEqual(actual.status, expected.status);
+            assert.strictEqual(actual.body, expected.body);
+        });
+        it('Checks that barcode is a number', async () => {
+            const expected = {
+                error: true,
+                status: 400,
+                body: 'validation/barcode',
+            };
+            const actual = await productController.setImages({admin: {}}, 'notanumber');
+            assert.strictEqual(actual.error, expected.error);
+            assert.strictEqual(actual.status, expected.status);
+            assert.strictEqual(actual.body, expected.body);
+        });
+
+        it('Deletes images', async () => {
+            const expected = {
+                error: false,
+                status: 200,
+            };
+            const barcode = 7;
+            const transaction = {};
+            let calledDestroy = false;
+            const actual = await productController.setImages({admin: {}}, barcode, null, {
+                db: {
+                    sequelize: {
+                        transaction: cb => cb(transaction),
+                    },
+                    models: {
+                        image: {
+                            destroy: options => {
+                                calledDestroy = true;
+                                assert.strictEqual(options.where.productBarcode, barcode);
+                                assert.strictEqual(options.transaction, transaction);
+                            },
+                            bulkCreate: () => null,
+                        },
+                    },
+                },
+            });
+            assert.strictEqual(calledDestroy, true);
+            assert.strictEqual(actual.error, expected.error);
+            assert.strictEqual(actual.status, expected.status);
+        });
+
+        it('Creates new images', async () => {
+            const expected = {
+                error: false,
+                status: 200,
+            };
+            const barcode = 7;
+            const transaction = {};
+            const url = 'http://www.google.com/';
+            let calledCreate = false;
+            const actual = await productController.setImages({admin: {}}, barcode, [url], {
+                db: {
+                    sequelize: {
+                        transaction: cb => cb(transaction),
+                    },
+                    models: {
+                        image: {
+                            destroy: () => null,
+                            bulkCreate: (values, options) => {
+                                calledCreate = true;
+                                assert.strictEqual(values.length, 1);
+                                assert.strictEqual(values[0].url, url);
+                                assert.strictEqual(values[0].productBarcode, barcode);
+                                assert.strictEqual(options.transaction, transaction);
+                            },
+                        },
+                    },
+                },
+            });
+            assert.strictEqual(calledCreate, true);
+            assert.strictEqual(actual.error, expected.error);
+            assert.strictEqual(actual.status, expected.status);
+        });
+    });
 });

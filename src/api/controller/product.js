@@ -221,9 +221,47 @@ async function destroy(requestingUser, barcode, dependencies = null) {
     return controllerResponse(false, 200);
 }
 
+async function setImages(requestingUser, barcode, imageUrls, dependencies = null) {
+    dependencies = dependencyInjector(['db'], dependencies);
+
+    if (!requestingUser || !requestingUser.admin) {
+        return controllerResponse(true, 403);
+    }
+
+    // We don't covert `barcode` to Number globally because they can start with 0
+    if (!validationUtil.isNumber(Number(barcode))) {
+        return controllerResponse(true, 400, 'validation/barcode');
+    }
+    if (!validationUtil.exists(imageUrls)) {
+        imageUrls = [];
+    }
+    if (!validationUtil.isArray(imageUrls)) {
+        return controllerResponse(true, 400, 'validation/imageUrls');
+    }
+    if (!validationUtil.each(imageUrls, o => validationUtil.isUrl(o))) {
+        return controllerResponse(true, 400, 'validation/imageUrls');
+    }
+
+    await dependencies.db.sequelize.transaction(async transaction => {
+        await dependencies.db.models.image.destroy({
+            where: {
+                productBarcode: barcode,
+            },
+            transaction,
+        });
+        await dependencies.db.models.image.bulkCreate(imageUrls.map(url => ({
+            url: url,
+            productBarcode: barcode,
+        })), {transaction});
+    });
+
+    return controllerResponse(false, 200);
+}
+
 export default {
     create,
     edit,
     search,
     destroy,
+    setImages,
 };
