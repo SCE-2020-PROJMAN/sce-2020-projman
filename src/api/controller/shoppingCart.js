@@ -21,10 +21,10 @@ async function add(customerEmail, storePlace, productBarcode, amount, dependenci
 
     const [storeProduct, customer] = await Promise.all([
         dependencies.db.models.storeProduct.findOne({
-        where: {
-            productBarcode: productBarcode,
-            storePlace: storePlace,
-        },
+            where: {
+                productBarcode: productBarcode,
+                storePlace: storePlace,
+            },
         }),
         dependencies.db.models.customer.findOne({
             where: {
@@ -71,15 +71,18 @@ async function get(customerEmail, dependencies = null) {
     }
 
     const shoppingCart = await dependencies.db.models.shoppingCart.findOne({
-        where: {
-            customerEmail: customerEmail,
-        },
         include: [{
+            model: dependencies.db.models.customer,
+            required: true,
+            where: {
+                userEmail: customerEmail,
+            },
+        }, {
             model: dependencies.db.models.shoppingCartProduct,
             required: false,
             include: [{
                 model: dependencies.db.models.storeProduct,
-                required: true,
+                required: false,
                 include: [{
                     model: dependencies.db.models.product,
                     required: true,

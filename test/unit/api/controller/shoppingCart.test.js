@@ -64,8 +64,8 @@ describe('add', () => {
                     },
                     customer: {
                         findOne: () => ({}),
+                    },
                 },
-            },
             },
         });
         assert.strictEqual(actual.error, expected.error);
@@ -213,7 +213,7 @@ describe('get', () => {
                 models: {
                     shoppingCart: {
                         findOne: options => {
-                            assert.strictEqual(options.where.customerEmail, customerEmail);
+                            assert.strictEqual(options.include[0].where.userEmail, customerEmail);
                             return null;
                         },
                     },
@@ -237,7 +237,7 @@ describe('get', () => {
                 models: {
                     shoppingCart: {
                         findOne: options => {
-                            assert.strictEqual(options.where.customerEmail, customerEmail);
+                            assert.strictEqual(options.include[0].where.userEmail, customerEmail);
                             return {
                                 shoppingCartProducts: [],
                             };
@@ -282,7 +282,7 @@ describe('get', () => {
                 models: {
                     shoppingCart: {
                         findOne: options => {
-                            assert.strictEqual(options.where.customerEmail, customerEmail);
+                            assert.strictEqual(options.include[0].where.userEmail, customerEmail);
                             return {
                                 shoppingCartProducts: [{
                                     amount: amountInCart,
