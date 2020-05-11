@@ -5,12 +5,12 @@ import validationUtil from '../util/validation';
 export default (dbModels = db.models) => asyncWrapper(async (req, res, next) => {
     const authTokenId = req.headers.authorization;
     if (!authTokenId) {
-        res.status(403).send('Authorization header required');
+        res.status(403).send('auth/required');
         return;
     }
 
     if (!validationUtil.isId(authTokenId)) {
-        res.status(403).send('Authorization header invalid');
+        res.status(403).send('auth/validation');
         return;
     }
 
@@ -32,7 +32,7 @@ export default (dbModels = db.models) => asyncWrapper(async (req, res, next) => 
     });
 
     if (!authToken) {
-        res.status(403).send('not found');
+        res.status(403).send('auth/existence');
         return;
     }
 

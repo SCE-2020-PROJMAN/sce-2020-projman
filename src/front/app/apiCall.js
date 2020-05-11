@@ -14,7 +14,18 @@ function apiCall(method, route, data = {}, options = {}) {
     } else {
         axiosConfig.data = data;
     }
-    return axios(`../${route}`, axiosConfig);
+    return axios(`../${route}`, axiosConfig)
+        .catch(err => {
+            if (err && err.response && err.response.status === 403) {
+                if ([
+                    'auth/validation',
+                    'auth/existence',
+                ].includes(err.response.data)) {
+                    sessionStorage.removeItem('authToken');
+                }
+            }
+            throw err;
+        });
 }
 
 export default apiCall;

@@ -36,7 +36,7 @@ describe('Authenticated middleware', () => {
         authenticatedMiddleware()(createRequest(), createResponse((status, data) => {
             try {
                 assert.strictEqual(status, 403);
-                assert.strictEqual(data, 'Authorization header required');
+                assert.strictEqual(data, 'auth/required');
                 done();
             } catch(err) {
                 done(err);
@@ -57,7 +57,7 @@ describe('Authenticated middleware', () => {
             createResponse((status, data) => {
                 try {
                     assert.strictEqual(status, 403);
-                    assert.strictEqual(data, 'not found');
+                    assert.strictEqual(data, 'auth/existence');
                     done();
                 } catch(err) {
                     done(err);
