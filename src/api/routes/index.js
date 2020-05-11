@@ -4,6 +4,7 @@ import frontRoute from './front';
 import authRoute from './auth';
 import customerRoute from './customer';
 import productRoute from './product';
+import shoppingCartRoute from './shoppingCart';
 import storeRoute from './store';
 
 const router = express.Router();
@@ -12,6 +13,7 @@ router.use('/front', frontRoute);
 router.use('/auth', authRoute);
 router.use('/customer', customerRoute);
 router.use('/product', productRoute);
+router.use('/shopping-cart', shoppingCartRoute);
 router.use('/store', storeRoute);
 
 // Has to be last:
