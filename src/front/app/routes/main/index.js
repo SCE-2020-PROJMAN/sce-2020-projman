@@ -1,11 +1,12 @@
 import React from 'react';
-import {MessageBar, MessageBarType, Spinner, SpinnerSize, TextField, Stack, PrimaryButton, ComboBox, Modal, IconButton} from 'office-ui-fabric-react';
+import {MessageBar, MessageBarType, Spinner, SpinnerSize, TextField, Stack, PrimaryButton, DefaultButton, ComboBox, Modal, IconButton, Panel} from 'office-ui-fabric-react';
 import StoreSelect from '../../components/storeSelect';
 import Product from '../../components/product';
 import Paginator from '../../components/paginator';
 import util from '../../util';
 import apiCall from '../../apiCall';
 import CreateProduct from './createProduct';
+import ShoppingCart from './shoppingCart';
 
 class MainRoute extends React.Component {
     constructor(props) {
@@ -33,6 +34,7 @@ class MainRoute extends React.Component {
             addToCartAmount: '',
             addToCartBarcode: null,
             addToCartLoading: false,
+            shoppingCartIsOpen: false,
         };
     }
 
@@ -203,6 +205,12 @@ class MainRoute extends React.Component {
                     <React.Fragment>
                         <h2>Welcome to {util.capitalize(this.state.selectedStore)}</h2>
 
+                        <DefaultButton
+                            style={{position: 'absolute', top: '0', right: '0'}}
+                            onClick={() => this.setState(prevState => ({...prevState, shoppingCartIsOpen: true}))}
+                            iconProps={{iconName: 'shoppingCart'}}
+                        />
+
                         {this.state.isAdmin && (
                             <CreateProduct store={this.state.selectedStore}/>
                         )}
@@ -279,6 +287,17 @@ class MainRoute extends React.Component {
                             pages={this.state.pages}
                             onSelectPage={this.setPage}
                         />
+
+                        <Panel
+                            headerText="Shopping Cart"
+                            isOpen={this.state.shoppingCartIsOpen}
+                            onDismiss={() => this.setState(prevState => ({...prevState, shoppingCartIsOpen: false}))}
+                            closeButtonAriaLabel="Close"
+                        >
+                            <ShoppingCart
+                                isStudent={this.state.isStudent}
+                            />
+                        </Panel>
 
                         <Modal
                             isOpen={this.state.addToCartModalIsOpen}

@@ -18,6 +18,7 @@ import {
     faTimes,
     faEdit,
     faHashtag,
+    faShoppingCart,
 } from '@fortawesome/free-solid-svg-icons';
 
 const iconMap = {
@@ -37,6 +38,7 @@ const iconMap = {
     cancel: faTimes,
     edit: faEdit,
     hash: faHashtag,
+    shoppingCart: faShoppingCart,
 };
 
 function initialize() {
