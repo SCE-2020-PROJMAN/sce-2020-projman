@@ -11,7 +11,7 @@ export default (sequelize, dataTypes) => {
 
     model.associate = (models) => {
         model.hasMany(models.address);
-        model.belongsTo(models.user, {foreignKey: {primaryKey: true}});
+        model.belongsTo(models.user, {foreignKey: {primaryKey: true}, onDelete: 'CASCADE'});
         model.hasMany(models.order);
     };
 
