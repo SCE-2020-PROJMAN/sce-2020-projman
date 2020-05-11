@@ -47,6 +47,51 @@ async function add(customerEmail, storePlace, productBarcode, amount, dependenci
     return controllerResponse(false, 200);
 }
 
+async function get(customerEmail, dependencies = null) {
+    dependencies = dependencyInjector(['db'], dependencies);
+
+    if (!validationUtil.isEmail(customerEmail)) {
+        return controllerResponse(true, 400, 'validation/customerEmail');
+    }
+
+    const shoppingCart = await dependencies.db.models.shoppingCart.findOne({
+        where: {
+            customerEmail: customerEmail,
+        },
+        include: [{
+            model: dependencies.db.models.shoppingCartProduct,
+            required: false,
+            include: [{
+                model: dependencies.db.models.storeProduct,
+                required: true,
+                include: [{
+                    model: dependencies.db.models.product,
+                    required: true,
+                }],
+            }],
+        }],
+    });
+
+    if (!shoppingCart || shoppingCart.shoppingCartProducts.length === 0) {
+        return controllerResponse(false, 200, []);
+    }
+
+    const products = shoppingCart.shoppingCartProducts.map(shoppingCartProduct => ({
+        amountInCart: shoppingCartProduct.amount,
+        amountInStore: shoppingCartProduct.storeProduct.amount,
+        barcode: shoppingCartProduct.storeProduct.product.barcode,
+        category: shoppingCartProduct.storeProduct.product.category,
+        freeText: shoppingCartProduct.storeProduct.product.freeText,
+        price: shoppingCartProduct.storeProduct.product.price,
+        brand: shoppingCartProduct.storeProduct.product.brand,
+        name: shoppingCartProduct.storeProduct.product.name,
+        studentDiscount: shoppingCartProduct.storeProduct.product.studentDiscount,
+    }));
+
+    return controllerResponse(false, 200, products);
+}
+
 export default {
     add,
+    get,
 };

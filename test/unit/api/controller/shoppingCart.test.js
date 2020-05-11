@@ -152,3 +152,126 @@ describe('add', () => {
         assert.strictEqual(actual.status, expected.status);
     });
 });
+
+describe('get', () => {
+    it('Checks that customerEmail is valid', async () => {
+        const expected = {
+            error: true,
+            status: 400,
+            body: 'validation/customerEmail',
+        };
+        const actual = await shoppingCartController.get('notanemail');
+        assert.strictEqual(actual.error, expected.error);
+        assert.strictEqual(actual.status, expected.status);
+        assert.strictEqual(actual.body, expected.body);
+    });
+    
+    it('Returns empty array if no shopping cart', async () => {
+        const expected = {
+            error: false,
+            status: 200,
+            body: [],
+        };
+        const customerEmail = 'some@email.com';
+        const actual = await shoppingCartController.get(customerEmail, {
+            db: {
+                models: {
+                    shoppingCart: {
+                        findOne: options => {
+                            assert.strictEqual(options.where.customerEmail, customerEmail);
+                            return null;
+                        },
+                    },
+                },
+            },
+        });
+        assert.strictEqual(actual.error, expected.error);
+        assert.strictEqual(actual.status, expected.status);
+        assert.deepStrictEqual(actual.body, expected.body);
+    });
+    
+    it('Returns empty array if shopping cart empty', async () => {
+        const expected = {
+            error: false,
+            status: 200,
+            body: [],
+        };
+        const customerEmail = 'some@email.com';
+        const actual = await shoppingCartController.get(customerEmail, {
+            db: {
+                models: {
+                    shoppingCart: {
+                        findOne: options => {
+                            assert.strictEqual(options.where.customerEmail, customerEmail);
+                            return {
+                                shoppingCartProducts: [],
+                            };
+                        },
+                    },
+                },
+            },
+        });
+        assert.strictEqual(actual.error, expected.error);
+        assert.strictEqual(actual.status, expected.status);
+        assert.deepStrictEqual(actual.body, expected.body);
+    });
+    
+    it('Flattens the hierarchy', async () => {
+        const amountInCart = 3;
+        const amountInStore = 5;
+        const barcode = '01234';
+        const category = 'category';
+        const freeText = 'freeText';
+        const price = '10.00';
+        const brand = 'brand';
+        const name = 'name';
+        const studentDiscount = '8';
+        const expected = {
+            error: false,
+            status: 200,
+            body: [{
+                amountInCart: amountInCart,
+                amountInStore: amountInStore,
+                barcode: barcode,
+                category: category,
+                freeText: freeText,
+                price: price,
+                brand: brand,
+                name: name,
+                studentDiscount: studentDiscount,
+            }],
+        };
+        const customerEmail = 'some@email.com';
+        const actual = await shoppingCartController.get(customerEmail, {
+            db: {
+                models: {
+                    shoppingCart: {
+                        findOne: options => {
+                            assert.strictEqual(options.where.customerEmail, customerEmail);
+                            return {
+                                shoppingCartProducts: [{
+                                    amount: amountInCart,
+                                    storeProduct: {
+                                        amount: amountInStore,
+                                        product: {
+                                            barcode: barcode,
+                                            category: category,
+                                            freeText: freeText,
+                                            price: price,
+                                            brand: brand,
+                                            name: name,
+                                            studentDiscount: studentDiscount,
+                                        },
+                                    },
+                                }],
+                            };
+                        },
+                    },
+                },
+            },
+        });
+        assert.strictEqual(actual.error, expected.error);
+        assert.strictEqual(actual.status, expected.status);
+        assert.deepStrictEqual(actual.body, expected.body);
+    });
+});

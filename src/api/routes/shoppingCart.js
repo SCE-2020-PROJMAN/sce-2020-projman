@@ -14,4 +14,10 @@ router.post('/', authenticatedMiddleware(), asyncWrapper(async (req, res) => {
     res.status(controllerResponse.status).send(controllerResponse.body);
 }));
 
+router.get('/', authenticatedMiddleware(), asyncWrapper(async (req, res) => {
+    const customerEmail = req.requestingUser.email;
+    const controllerResponse = await shoppingCartController.get(customerEmail);
+    res.status(controllerResponse.status).send(controllerResponse.body);
+}));
+
 export default router;
