@@ -44,19 +44,14 @@ async function setAddresses(userEmail, addresses, dependencies = []) {
     if (!validationUtil.isArray(addresses)) {
         return controllerResponse(true, 400, 'validation/addresses');
     }
-
-    let invalidFound = false;
-    addresses.forEach(address => {
-        if (
-            !validationUtil.isString(address.city) ||
-            !validationUtil.isString(address.street) ||
-            !validationUtil.isString(address.house) ||
-            !validationUtil.isString(address.apartment)
-        ) {
-            invalidFound = true;
-        }
-    });
-    if (invalidFound) {
+    if (!validationUtil.each(addresses, address => {
+        return (
+            validationUtil.isString(address.city) &&
+            validationUtil.isString(address.street) &&
+            validationUtil.isString(address.house) &&
+            validationUtil.isString(address.apartment)
+        );
+    })) {
         return controllerResponse(true, 400, 'validation/addresses');
     }
 
