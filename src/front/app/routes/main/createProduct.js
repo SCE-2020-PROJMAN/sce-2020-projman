@@ -28,19 +28,23 @@ class CreateProduct extends React.Component {
     }
 
     handleSubmit(productDetails) {
+        const newProduct = {
+            ...productDetails,
+            barcode: this.state.barcode,
+            storePlace: this.props.store,
+        };
         this.setState(prevState => ({
             ...prevState,
             error: false,
         }));
-        apiCall('post', 'product', {
-            ...productDetails,
-            barcode: this.state.barcode,
-            storePlace: this.props.store,
-        })
+        apiCall('post', 'product', newProduct)
             .then(() => {
                 this.setState(prevState => ({
                     ...prevState,
                 }));
+                if (this.props.onSuccessfulSubmit) {
+                    this.props.onSuccessfulSubmit(newProduct);
+                }
             })
             .catch(err => {
                 console.error(err);
@@ -92,6 +96,7 @@ class CreateProduct extends React.Component {
 
 CreateProduct.propTypes = {
     store: propTypes.string.isRequired,
+    onSuccessfulSubmit: propTypes.func,
 };
 
 export default CreateProduct;

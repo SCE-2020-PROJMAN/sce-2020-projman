@@ -19,6 +19,7 @@ class MainRoute extends React.Component {
         this.handleChange = this.handleChange.bind(this);
         this.handleChangeSort = this.handleChangeSort.bind(this);
         this.handleEditProduct = this.handleEditProduct.bind(this);
+        this.addProduct = this.addProduct.bind(this);
 
         this.state = {
             page: 0,
@@ -197,6 +198,13 @@ class MainRoute extends React.Component {
         };
     }
 
+    addProduct(product) {
+        this.setState(prevState => ({
+            ...prevState,
+            products: [product, ...prevState.products],
+        }));
+    }
+
     render() {
         return (
             <React.Fragment>
@@ -212,7 +220,10 @@ class MainRoute extends React.Component {
                         />
 
                         {this.state.isAdmin && (
-                            <CreateProduct store={this.state.selectedStore}/>
+                            <CreateProduct
+                                store={this.state.selectedStore}
+                                onSuccessfulSubmit={this.addProduct}
+                            />
                         )}
 
                         <form onSubmit={() => this.setPage(0)}>
