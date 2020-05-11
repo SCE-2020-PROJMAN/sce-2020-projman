@@ -1,6 +1,6 @@
 import React from 'react';
 import propTypes from 'prop-types';
-import {Spinner, SpinnerSize, MessageBar, MessageBarType, Stack, PrimaryButton} from 'office-ui-fabric-react';
+import {Spinner, SpinnerSize, MessageBar, MessageBarType, Stack, PrimaryButton, IconButton} from 'office-ui-fabric-react';
 import apiCall from '../../apiCall';
 
 class ShoppingCart extends React.Component {
@@ -11,10 +11,15 @@ class ShoppingCart extends React.Component {
             loading: false,
             error: false,
             items: [],
+            deletingItem: false,
         };
     }
 
     componentDidMount() {
+        this.updateCart();
+    }
+
+    updateCart() {
         this.setState(prevState => ({
             ...prevState,
             loading: true,
@@ -40,6 +45,28 @@ class ShoppingCart extends React.Component {
                     loading: false,
                 }));
             });
+    }
+
+    removeFromCart(id) {
+        return () => {
+            this.setState(prevState => ({
+                ...prevState,
+                deletingItem: true,
+            }));
+            apiCall('delete', `shopping-cart/${id}`)
+                .then(() => {
+                    this.updateCart();
+                })
+                .catch(err => {
+                    console.error(err);
+                })
+                .finally(() => {
+                    this.setState(prevState => ({
+                        ...prevState,
+                        deletingItem: false,
+                    }));
+                });
+        };
     }
 
     render() {
@@ -73,9 +100,16 @@ class ShoppingCart extends React.Component {
             <Stack vertical>
                 <Stack.Item grow={1}>
                     {this.state.items.map(item =>
-                        <div key={item.barcode}>
-                            x{item.amountInCart} {item.name}: {calculatePrice(item)}
-                        </div>
+                        <Stack horizontal key={item.barcode}>
+                            <Stack.Item grow={1}>
+                                x{item.amountInCart} {item.name}: {calculatePrice(item)}
+                            </Stack.Item>
+                            <IconButton
+                                onClick={this.removeFromCart(item.idInShoppingCart)}
+                                iconProps={{iconName: 'cancel'}}
+                                disabled={this.state.deletingItem}
+                            />
+                        </Stack>
                     )}
                 </Stack.Item>
                 <div>
