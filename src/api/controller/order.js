@@ -72,6 +72,7 @@ function create(customerEmail, shippingTime, addressId, dependencies = null) {
                 return dependencies.db.models.storeProduct.decrement(['amount', productOrder.amount], {
                     where: {
                         productBarcode: productOrder.productBarcode,
+                        // TODO: Also the particular store
                     },
                     transaction,
                 });
