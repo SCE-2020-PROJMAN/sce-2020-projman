@@ -39,4 +39,9 @@ router.get('/search', authenticatedMiddleware(), asyncWrapper(async (req, res) =
     res.status(controllerResponse.status).send(controllerResponse.body);
 }));
 
+router.delete('/:barcode', authenticatedMiddleware(), asyncWrapper(async (req, res) => {
+    const controllerResponse = await productController.destroy(req.requestingUser, req.params.barcode);
+    res.status(controllerResponse.status).send(controllerResponse.body);
+}));
+
 export default router;

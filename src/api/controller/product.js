@@ -183,8 +183,47 @@ async function search(sort, search, page = 0, pageSize = 20, dependencies = null
     });
 }
 
+async function destroy(requestingUser, barcode, dependencies = null) {
+    dependencies = dependencyInjector(['db'], dependencies);
+
+    if (!requestingUser || !requestingUser.admin) {
+        return controllerResponse(true, 403);
+    }
+
+    // We don't covert `barcode` to Number globally because they can start with 0
+    if (!validationUtil.isNumber(Number(barcode))) {
+        return controllerResponse(true, 400, 'validation/barcode');
+    }
+
+    await dependencies.db.sequelize.transaction(async transaction => {
+        await Promise.all([
+            dependencies.db.models.image.destroy({
+                where: {
+                    productBarcode: barcode,
+                },
+                transaction,
+            }),
+            dependencies.db.models.product.destroy({
+                where: {
+                    barcode: barcode,
+                },
+                transaction,
+            }),
+            dependencies.db.models.storeProduct.destroy({
+                where: {
+                    productBarcode: barcode,
+                },
+                transaction,
+            }),
+        ]);
+    });
+
+    return controllerResponse(false, 200);
+}
+
 export default {
     create,
     edit,
     search,
+    destroy,
 };
