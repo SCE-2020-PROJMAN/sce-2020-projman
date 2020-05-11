@@ -50,7 +50,7 @@ describe('setStatus', () => {
         const expected = {
             error: true,
             status: 404,
-            body: 'existance/userEmail',
+            body: 'existence/userEmail',
         };
         const actual = await customerController.setStatus({admin: {}}, 'some@email.com', true, {
             db: {

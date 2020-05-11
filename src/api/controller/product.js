@@ -107,7 +107,7 @@ async function edit(requestingUser, barcode, category, freeText, price, brand, n
     });
 
     if (updatedRowsCount === 0) {
-        return controllerResponse(true, 404, 'existance/barcode');
+        return controllerResponse(true, 404, 'existence/barcode');
     }
 
     return controllerResponse(false, 200);

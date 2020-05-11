@@ -26,7 +26,7 @@ async function setStatus(requestingUser, userEmail, isStudent, dependencies = nu
     });
 
     if (updatedRowsCount === 0) {
-        return controllerResponse(true, 404, 'existance/userEmail');
+        return controllerResponse(true, 404, 'existence/userEmail');
     }
 
     return controllerResponse(false);

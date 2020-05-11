@@ -407,7 +407,7 @@ describe('edit', () => {
         const expected = {
             error: true,
             status: 404,
-            body: 'existance/barcode',
+            body: 'existence/barcode',
         };
         const barcode = '01234';
         const category = 'category';
