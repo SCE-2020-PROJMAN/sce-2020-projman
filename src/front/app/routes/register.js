@@ -1,6 +1,6 @@
 import React from 'react';
 import propTypes from 'prop-types';
-import { TextField, PrimaryButton, MessageBar, MessageBarType } from 'office-ui-fabric-react';
+import { ActionButton, Link, Label, TextField, PrimaryButton, MessageBar, MessageBarType } from 'office-ui-fabric-react';
 import apiCall from '../apiCall';
 
 class RegisterRoute extends React.Component {
@@ -9,7 +9,7 @@ class RegisterRoute extends React.Component {
 
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleChange = this.handleChange.bind(this);
-
+        this.toLogin = this.toLogin.bind(this);
         this.state = {
             email: '',
             password: '',
@@ -74,7 +74,9 @@ class RegisterRoute extends React.Component {
             }));
         };
     }
-
+    toLogin() {
+        this.props.history.push('/login');
+    }
     render() {
         return (
             <form onSubmit={this.handleSubmit} style={{ maxWidth: '1000px', margin: 'auto', marginTop: '1em' }}>
@@ -111,8 +113,9 @@ class RegisterRoute extends React.Component {
                         Registered successfully. Redirecting you now . . .
                     </MessageBar>
                 )}
-
+                <Label style={{ display: 'inline' }}>Already registered? </Label><ActionButton text="Click here" onClick={this.toLogin} />
             </form>
+
         );
     }
 }
