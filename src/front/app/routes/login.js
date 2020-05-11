@@ -37,7 +37,7 @@ class LoginRoute extends React.Component {
                     success: true,
                 }));
                 setTimeout(() => {
-                    this.props.history.push('/');
+                    this.props.history.go('/');
                 }, 5000);
             })
             .catch(err => {
