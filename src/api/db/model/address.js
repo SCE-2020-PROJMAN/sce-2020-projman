@@ -2,22 +2,18 @@ export default (sequelize, dataTypes) => {
     const model = sequelize.define('address', {
         city: {
             type: dataTypes.STRING,
-            primaryKey: true,
             allowNull: false,
         },
         street: {
             type: dataTypes.STRING,
-            primaryKey: true,
             allowNull: false,
         },
         house: {
             type: dataTypes.STRING,
-            primaryKey: true,
             allowNull: false,
         },
         apartment: {
             type: dataTypes.STRING,
-            primaryKey: true,
             allowNull: true,
         },
     }, {
@@ -26,6 +22,7 @@ export default (sequelize, dataTypes) => {
 
     model.associate = (models) => {
         model.belongsTo(models.customer);
+        model.hasMany(models.order);
     };
 
     return model;
