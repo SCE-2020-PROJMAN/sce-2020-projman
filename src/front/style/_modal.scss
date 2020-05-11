@@ -1,0 +1,38 @@
+.modal {
+    .ms-Dialog-main {
+        display: flex;
+        flex-direction: column;
+
+        .ms-Modal-scrollableContent {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+    }
+
+    .header {
+        border-top: 1pt solid rgb(0, 120, 212);
+        display: flex;
+        justify-content: space-between;
+        background-color: #eee;
+
+        .closeButton {
+            color: #f04a0c
+        }
+    }
+
+    .body {
+        flex-grow: 1;
+        margin: 0 1em;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .footer {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        background-color: #eee;
+        padding: 0.25em;
+    }
+}

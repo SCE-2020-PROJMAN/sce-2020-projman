@@ -17,6 +17,7 @@ import {
     faSave,
     faTimes,
     faEdit,
+    faHashtag,
 } from '@fortawesome/free-solid-svg-icons';
 
 const iconMap = {
@@ -35,6 +36,7 @@ const iconMap = {
     save: faSave,
     cancel: faTimes,
     edit: faEdit,
+    hash: faHashtag,
 };
 
 function initialize() {

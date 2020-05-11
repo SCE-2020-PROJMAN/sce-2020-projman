@@ -1,5 +1,5 @@
 import React from 'react';
-import {MessageBar, MessageBarType, Spinner, SpinnerSize, TextField, Stack, PrimaryButton, ComboBox} from 'office-ui-fabric-react';
+import {MessageBar, MessageBarType, Spinner, SpinnerSize, TextField, Stack, PrimaryButton, ComboBox, Modal, IconButton} from 'office-ui-fabric-react';
 import StoreSelect from '../../components/storeSelect';
 import Product from '../../components/product';
 import Paginator from '../../components/paginator';
@@ -11,6 +11,8 @@ class MainRoute extends React.Component {
     constructor(props) {
         super(props);
 
+        this.openAddToCartDialog = this.openAddToCartDialog.bind(this);
+        this.addToCart = this.addToCart.bind(this);
         this.selectStore = this.selectStore.bind(this);
         this.setPage = this.setPage.bind(this);
         this.handleChange = this.handleChange.bind(this);
@@ -27,6 +29,10 @@ class MainRoute extends React.Component {
             isAdmin: false,
             isCustomer: false,
             isStudent: false,
+            addToCartModalIsOpen: false,
+            addToCartAmount: '',
+            addToCartBarcode: null,
+            addToCartLoading: false,
         };
     }
 
@@ -42,6 +48,50 @@ class MainRoute extends React.Component {
             })
             .catch(err => {
                 console.error(err);
+            });
+    }
+
+    openAddToCartDialog(barcode) {
+        return () => {
+            this.setState(prevState => ({
+                ...prevState,
+                addToCartModalIsOpen: true,
+                addToCartBarcode: barcode,
+            }));
+        };
+    }
+
+    addToCart() {
+        this.setState(prevState => ({
+            ...prevState,
+            addToCartLoading: true,
+            addToCartError: false,
+        }));
+        apiCall('post', 'shopping-cart', {
+            store: this.state.selectedStore,
+            barcode: this.state.addToCartBarcode,
+            amount: this.state.addToCartAmount,
+        })
+            .then(() => {
+                this.setState(prevState => ({
+                    ...prevState,
+                    addToCartModalIsOpen: false,
+                    addToCartAmount: '',
+                    addToCartBarcode: null,
+                }));
+            })
+            .catch(err => {
+                console.error(err);
+                this.setState(prevState => ({
+                    ...prevState,
+                    addToCartError: true,
+                }));
+            })
+            .finally(() => {
+                this.setState(prevState => ({
+                    ...prevState,
+                    addToCartLoading: false,
+                }));
             });
     }
 
@@ -217,7 +267,7 @@ class MainRoute extends React.Component {
                                             isAvailable={true}
                                             isStudent={this.state.isStudent}
                                             isEditable={this.state.isAdmin}
-                                            onAddToCart={(() => {})}
+                                            onAddToCart={this.openAddToCartDialog(product.barcode)}
                                             onEdit={this.handleEditProduct(product.barcode)}
                                         />
                                     )}
@@ -229,6 +279,50 @@ class MainRoute extends React.Component {
                             pages={this.state.pages}
                             onSelectPage={this.setPage}
                         />
+
+                        <Modal
+                            isOpen={this.state.addToCartModalIsOpen}
+                            isBlocking={false}
+                            className="modal"
+                        >
+                            <div className="header">
+                                <IconButton
+                                    className="closeButton"
+                                    iconProps={{iconName: 'cancel'}}
+                                    onClick={() => this.setState(prevState => ({...prevState, addToCartModalIsOpen: false, addToCartAmount: ''}))}
+                                />
+                            </div>
+                            <div className="body">
+                                {this.state.addToCartLoading ? (
+                                    <Spinner 
+                                        label="Processing . . ."
+                                        size={SpinnerSize.large}
+                                    />
+                                ) : (
+                                    <TextField
+                                        label="Amount"
+                                        value={this.state.addToCartAmount}
+                                        onChange={this.handleChange('addToCartAmount')}
+                                        type="number"
+                                        iconProps={{iconName: 'hash'}}
+                                    />
+                                )}
+                                {this.state.addToCartError && (
+                                    <MessageBar messageBarType={MessageBarType.error}>
+                                        An error occurred. Try again later.
+                                    </MessageBar>
+                                )}
+                            </div>
+                            <div className="footer">
+                                <PrimaryButton
+                                    iconProps={{iconName: 'cartPlus'}}
+                                    text="Add to cart"
+                                    type="button"
+                                    onClick={this.addToCart}
+                                    disabled={this.state.addToCartLoading}
+                                />
+                            </div>
+                        </Modal>
                     </React.Fragment>
                 ) : (
                     <StoreSelect
