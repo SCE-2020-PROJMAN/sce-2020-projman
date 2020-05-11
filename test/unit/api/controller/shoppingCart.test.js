@@ -2,190 +2,258 @@ import assert from 'assert';
 import shoppingCartController from '../../../../src/api/controller/shoppingCart';
 
 describe('add', () => {
-    it('Checks that customerEmail is valid', async () => {
-        const expected = {
-            error: true,
-            status: 400,
-            body: 'validation/customerEmail',
-        };
-        const actual = await shoppingCartController.add('notanemail');
-        assert.strictEqual(actual.error, expected.error);
-        assert.strictEqual(actual.status, expected.status);
-        assert.strictEqual(actual.body, expected.body);
-    });
-    
-    it('Checks that storePlace is valid', async () => {
-        const expected = {
-            error: true,
-            status: 400,
-            body: 'validation/storePlace',
-        };
-        const actual = await shoppingCartController.add('some@email.com', 1234);
-        assert.strictEqual(actual.error, expected.error);
-        assert.strictEqual(actual.status, expected.status);
-        assert.strictEqual(actual.body, expected.body);
-    });
-    
-    it('Checks that productBarcode is valid', async () => {
-        const expected = {
-            error: true,
-            status: 400,
-            body: 'validation/productBarcode',
-        };
-        const actual = await shoppingCartController.add('some@email.com', 'storePlace', 'notanumber');
-        assert.strictEqual(actual.error, expected.error);
-        assert.strictEqual(actual.status, expected.status);
-        assert.strictEqual(actual.body, expected.body);
-    });
-    
-    it('Checks that amount is valid', async () => {
-        const expected = {
-            error: true,
-            status: 400,
-            body: 'validation/amount',
-        };
-        const actual = await shoppingCartController.add('some@email.com', 'storePlace', '01234', 'notanumber');
-        assert.strictEqual(actual.error, expected.error);
-        assert.strictEqual(actual.status, expected.status);
-        assert.strictEqual(actual.body, expected.body);
-    });
-    
-    it('Checks that product exists in store', async () => {
-        const expected = {
-            error: true,
-            status: 404,
-            body: 'existence/storeProduct',
-        };
-        const actual = await shoppingCartController.add('some@email.com', 'storePlace', '01234', 1, {
-            db: {
-                models: {
-                    storeProduct: {
-                        findOne: () => null,
-                    },
-                    customer: {
-                        findOne: () => ({}),
-                    },
-                },
-            },
+    describe('Common', () => {
+        it('Checks that customerEmail is valid', async () => {
+            const expected = {
+                error: true,
+                status: 400,
+                body: 'validation/customerEmail',
+            };
+            const actual = await shoppingCartController.add('notanemail');
+            assert.strictEqual(actual.error, expected.error);
+            assert.strictEqual(actual.status, expected.status);
+            assert.strictEqual(actual.body, expected.body);
         });
-        assert.strictEqual(actual.error, expected.error);
-        assert.strictEqual(actual.status, expected.status);
-        assert.strictEqual(actual.body, expected.body);
-    });
-    
-    it('Checks that customer exists', async () => {
-        const expected = {
-            error: true,
-            status: 404,
-            body: 'existence/customer',
-        };
-        const actual = await shoppingCartController.add('some@email.com', 'storePlace', '01234', 1, {
-            db: {
-                models: {
-                    storeProduct: {
-                        findOne: () => ({}),
-                    },
-                    customer: {
-                        findOne: () => null,
-                    },
-                },
-            },
+        
+        it('Checks that storePlace is valid', async () => {
+            const expected = {
+                error: true,
+                status: 400,
+                body: 'validation/storePlace',
+            };
+            const actual = await shoppingCartController.add('some@email.com', 1234);
+            assert.strictEqual(actual.error, expected.error);
+            assert.strictEqual(actual.status, expected.status);
+            assert.strictEqual(actual.body, expected.body);
         });
-        assert.strictEqual(actual.error, expected.error);
-        assert.strictEqual(actual.status, expected.status);
-        assert.strictEqual(actual.body, expected.body);
-    });
-    
-    it('Creates a shoppingCart if neccesary', async () => {
-        const expected = {
-            error: false,
-            status: 200,
-        };
-        const customerEmail = 'some@email.com';
-        const storeProductId = 3;
-        const shoppingCartId = 5;
-        const customerId = 7;
-        const transaction = {};
-        let calledFindOrCreate = false;
-        const actual = await shoppingCartController.add(customerEmail, 'storePlace', '01234', 1, {
-            db: {
-                sequelize: {
-                    transaction: cb => cb(transaction),
-                },
-                models: {
-                    storeProduct: {
-                        findOne: () => ({id: storeProductId}),
-                    },
-                    customer: {
-                        findOne: () => ({id: customerId}),
-                    },
-                    shoppingCart: {
-                        findOrCreate: options => {
-                            calledFindOrCreate = true;
-                            assert.strictEqual(options.where['$customer.userEmail$'], customerEmail);
-                            assert.strictEqual(options.defaults.customerId, customerId);
-                            assert.strictEqual(options.transaction, transaction);
-                            return [{id: shoppingCartId}];
+        
+        it('Checks that productBarcode is valid', async () => {
+            const expected = {
+                error: true,
+                status: 400,
+                body: 'validation/productBarcode',
+            };
+            const actual = await shoppingCartController.add('some@email.com', 'storePlace', 'notanumber');
+            assert.strictEqual(actual.error, expected.error);
+            assert.strictEqual(actual.status, expected.status);
+            assert.strictEqual(actual.body, expected.body);
+        });
+        
+        it('Checks that amount is valid', async () => {
+            const expected = {
+                error: true,
+                status: 400,
+                body: 'validation/amount',
+            };
+            const actual = await shoppingCartController.add('some@email.com', 'storePlace', '01234', 'notanumber');
+            assert.strictEqual(actual.error, expected.error);
+            assert.strictEqual(actual.status, expected.status);
+            assert.strictEqual(actual.body, expected.body);
+        });
+        
+        it('Checks that product exists in store', async () => {
+            const expected = {
+                error: true,
+                status: 404,
+                body: 'existence/storeProduct',
+            };
+            const actual = await shoppingCartController.add('some@email.com', 'storePlace', '01234', 1, {
+                db: {
+                    models: {
+                        storeProduct: {
+                            findOne: () => null,
                         },
-                    },
-                    shoppingCartProduct: {
-                        create: () => {},
-                    },
-                },
-            },
-        });
-        assert.strictEqual(calledFindOrCreate, true);
-        assert.strictEqual(actual.error, expected.error);
-        assert.strictEqual(actual.status, expected.status);
-    });
-    
-    it('Creates a shoppingCartProduct', async () => {
-        const expected = {
-            error: false,
-            status: 200,
-        };
-        const customerEmail = 'some@email.com';
-        const storePlace = 'storePlace';
-        const productBarcode = '01234';
-        const storeProductId = 3;
-        const shoppingCartId = 5;
-        const customerId = 7;
-        const amount = 1;
-        const transaction = {};
-        let calledCreate = false;
-        const actual = await shoppingCartController.add(customerEmail, storePlace, productBarcode, amount, {
-            db: {
-                sequelize: {
-                    transaction: cb => cb(transaction),
-                },
-                models: {
-                    storeProduct: {
-                        findOne: () => ({id: storeProductId}),
-                    },
-                    customer: {
-                        findOne: () => ({id: customerId}),
-                    },
-                    shoppingCart: {
-                        findOrCreate: () => {
-                            return [{id: shoppingCartId}];
-                        },
-                    },
-                    shoppingCartProduct: {
-                        create: (values, options) => {
-                            calledCreate = true;
-                            assert.strictEqual(values.amount, amount);
-                            assert.strictEqual(values.shoppingCartId, shoppingCartId);
-                            assert.strictEqual(values.storeProductId, storeProductId);
-                            assert.strictEqual(options.transaction, transaction);
+                        customer: {
+                            findOne: () => ({}),
                         },
                     },
                 },
-            },
+            });
+            assert.strictEqual(actual.error, expected.error);
+            assert.strictEqual(actual.status, expected.status);
+            assert.strictEqual(actual.body, expected.body);
         });
-        assert.strictEqual(calledCreate, true);
-        assert.strictEqual(actual.error, expected.error);
-        assert.strictEqual(actual.status, expected.status);
+        
+        it('Checks that customer exists', async () => {
+            const expected = {
+                error: true,
+                status: 404,
+                body: 'existence/customer',
+            };
+            const actual = await shoppingCartController.add('some@email.com', 'storePlace', '01234', 1, {
+                db: {
+                    models: {
+                        storeProduct: {
+                            findOne: () => ({}),
+                        },
+                        customer: {
+                            findOne: () => null,
+                        },
+                    },
+                },
+            });
+            assert.strictEqual(actual.error, expected.error);
+            assert.strictEqual(actual.status, expected.status);
+            assert.strictEqual(actual.body, expected.body);
+        });
+        
+        it('Creates a shoppingCart if neccesary', async () => {
+            const expected = {
+                error: false,
+                status: 200,
+            };
+            const customerEmail = 'some@email.com';
+            const storeProductId = 3;
+            const shoppingCartId = 5;
+            const customerId = 7;
+            let calledFindOrCreate = false;
+            const actual = await shoppingCartController.add(customerEmail, 'storePlace', '01234', 1, {
+                db: {
+                    models: {
+                        storeProduct: {
+                            findOne: () => ({id: storeProductId}),
+                        },
+                        customer: {
+                            findOne: () => ({id: customerId}),
+                        },
+                        shoppingCart: {
+                            findOrCreate: options => {
+                                calledFindOrCreate = true;
+                                assert.strictEqual(options.where['$customer.userEmail$'], customerEmail);
+                                assert.strictEqual(options.defaults.customerId, customerId);
+                                return [{id: shoppingCartId}];
+                            },
+                        },
+                        shoppingCartProduct: {
+                            create: () => {},
+                            findOne: () => null,
+                        },
+                    },
+                },
+            });
+            assert.strictEqual(calledFindOrCreate, true);
+            assert.strictEqual(actual.error, expected.error);
+            assert.strictEqual(actual.status, expected.status);
+        });
     });
+    
+    describe('Product already exists', () => {
+        it('Updates existing shoppingCartProduct', async () => {
+            const expected = {
+                error: false,
+                status: 200,
+            };
+            const customerEmail = 'some@email.com';
+            const storePlace = 'storePlace';
+            const productBarcode = '01234';
+            const storeProductId = 3;
+            const shoppingCartId = 5;
+            const customerId = 7;
+            const amount = 1;
+            const oldAmount = 13;
+            let calledCreate = false;
+            let calledFindOne = false;
+            let calledUpdate = false;
+            const actual = await shoppingCartController.add(customerEmail, storePlace, productBarcode, amount, {
+                db: {
+                    models: {
+                        storeProduct: {
+                            findOne: () => ({id: storeProductId}),
+                        },
+                        customer: {
+                            findOne: () => ({id: customerId}),
+                        },
+                        shoppingCart: {
+                            findOrCreate: () => {
+                                return [{id: shoppingCartId}];
+                            },
+                        },
+                        shoppingCartProduct: {
+                            create: () => {
+                                calledCreate = true;
+                            },
+                            findOne: options => {
+                                calledFindOne = true;
+                                assert.strictEqual(options.where.shoppingCartId, shoppingCartId);
+                                assert.strictEqual(options.where.storeProductId, storeProductId);
+                                return {amount: oldAmount};
+                            },
+                            update: (values, options) => {
+                                calledUpdate = true;
+                                assert.strictEqual(values.amount, amount + oldAmount);
+                                assert.strictEqual(options.where.shoppingCartId, shoppingCartId);
+                                assert.strictEqual(options.where.storeProductId, storeProductId);
+                            },
+                        },
+                    },
+                },
+            });
+            assert.strictEqual(calledCreate, false);
+            assert.strictEqual(calledFindOne, true);
+            assert.strictEqual(calledUpdate, true);
+            assert.strictEqual(actual.error, expected.error);
+            assert.strictEqual(actual.status, expected.status);
+        });
+    });
+
+    describe('Product doesn\'t exist yet', () => {
+        it('Creates a shoppingCartProduct', async () => {
+            const expected = {
+                error: false,
+                status: 200,
+            };
+            const customerEmail = 'some@email.com';
+            const storePlace = 'storePlace';
+            const productBarcode = '01234';
+            const storeProductId = 3;
+            const shoppingCartId = 5;
+            const customerId = 7;
+            const amount = 1;
+            let calledCreate = false;
+            let calledFindOne = false;
+            let calledUpdate = false;
+            const actual = await shoppingCartController.add(customerEmail, storePlace, productBarcode, amount, {
+                db: {
+                    models: {
+                        storeProduct: {
+                            findOne: () => ({id: storeProductId}),
+                        },
+                        customer: {
+                            findOne: () => ({id: customerId}),
+                        },
+                        shoppingCart: {
+                            findOrCreate: () => {
+                                return [{id: shoppingCartId}];
+                            },
+                        },
+                        shoppingCartProduct: {
+                            create: values => {
+                                calledCreate = true;
+                                assert.strictEqual(values.amount, amount);
+                                assert.strictEqual(values.shoppingCartId, shoppingCartId);
+                                assert.strictEqual(values.storeProductId, storeProductId);
+                            },
+                            findOne: options => {
+                                calledFindOne = true;
+                                assert.strictEqual(options.where.shoppingCartId, shoppingCartId);
+                                assert.strictEqual(options.where.storeProductId, storeProductId);
+                                return null;
+                            },
+                            update: () => {
+                                calledUpdate = true;
+                            },
+                        },
+                    },
+                },
+            });
+            assert.strictEqual(calledCreate, true);
+            assert.strictEqual(calledFindOne, true);
+            assert.strictEqual(calledUpdate, false);
+            assert.strictEqual(actual.error, expected.error);
+            assert.strictEqual(actual.status, expected.status);
+        });
+    });
+
 });
 
 describe('remove', () => {

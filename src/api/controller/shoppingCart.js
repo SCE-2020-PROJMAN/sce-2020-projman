@@ -39,26 +39,42 @@ async function add(customerEmail, storePlace, productBarcode, amount, dependenci
         return controllerResponse(true, 404, 'existence/customer');
     }
 
-    await dependencies.db.sequelize.transaction(async transaction => {
-        const [shoppingCart] = await dependencies.db.models.shoppingCart.findOrCreate({
+    const [shoppingCart] = await dependencies.db.models.shoppingCart.findOrCreate({
+        where: {
+            '$customer.userEmail$': customerEmail,
+        },
+        include: [{
+            model: dependencies.db.models.customer,
+            required: true,
+        }],
+        defaults: {
+            customerId: customer.id,
+        },
+    });
+
+    const alreadyExistingProduct = await dependencies.db.models.shoppingCartProduct.findOne({
+        where: {
+            shoppingCartId: shoppingCart.id,
+            storeProductId: storeProduct.id,
+        },
+    });
+
+    if (alreadyExistingProduct) {
+        await dependencies.db.models.shoppingCartProduct.update({
+            amount: alreadyExistingProduct.amount + amount,
+        }, {
             where: {
-                '$customer.userEmail$': customerEmail,
+                shoppingCartId: shoppingCart.id,
+                storeProductId: storeProduct.id,
             },
-            include: [{
-                model: dependencies.db.models.customer,
-                required: true,
-            }],
-            defaults: {
-                customerId: customer.id,
-            },
-            transaction,
         });
+    } else {
         await dependencies.db.models.shoppingCartProduct.create({
             amount: amount,
             shoppingCartId: shoppingCart.id,
             storeProductId: storeProduct.id,
-        }, {transaction});
-    });
+        });
+    }
 
     return controllerResponse(false, 200);
 }
