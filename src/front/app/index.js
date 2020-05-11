@@ -9,11 +9,19 @@ import changePasswordRoute from './routes/changePassword';
 icons.initialize();
 
 function App() {
+    function isLoggedIn() {
+        return sessionStorage.getItem('authToken') && sessionStorage.getItem('authToken') !== '';
+    }
+
     return (
         <React.Fragment>
             <HashRouter>
                 <Switch>
-                    <Route exact path="/" component={mainRoute}/>
+                    {isLoggedIn() ? (
+                        <Route exact path="/" component={mainRoute}/>
+                    ) : (
+                        <Route exact path="/" component={loginRoute}/>
+                    )}
                     <Route path="/login" component={loginRoute}/>
                     <Route path="/register" component={registerRoute}/>
                     <Route path="/changePassword" component={changePasswordRoute}/>
