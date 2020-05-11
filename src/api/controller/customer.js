@@ -32,6 +32,60 @@ async function setStatus(requestingUser, userEmail, isStudent, dependencies = nu
     return controllerResponse(false);
 }
 
+async function setAddresses(userEmail, addresses, dependencies = []) {
+    dependencies = dependencyInjector(['db'], dependencies);
+
+    if (!validationUtil.isEmail(userEmail)) {
+        return controllerResponse(true, 400, 'validation/userEmail');
+    }
+    if (!validationUtil.exists(addresses)) {
+        addresses = [];
+    }
+    if (!validationUtil.isArray(addresses)) {
+        return controllerResponse(true, 400, 'validation/addresses');
+    }
+
+    let invalidFound = false;
+    addresses.forEach(address => {
+        if (
+            !validationUtil.isString(address.city) ||
+            !validationUtil.isString(address.street) ||
+            !validationUtil.isString(address.house) ||
+            !validationUtil.isString(address.apartment)
+        ) {
+            invalidFound = true;
+        }
+    });
+    if (invalidFound) {
+        return controllerResponse(true, 400, 'validation/addresses');
+    }
+
+    const customer = await dependencies.db.models.customer.findOne({
+        where: {
+            userEmail: userEmail,
+        },
+    });
+    if (!customer) {
+        return controllerResponse(true, 404, 'existence/customer');
+    }
+
+    await dependencies.db.sequelize.transaction(async transaction => {
+        await dependencies.db.models.address.destroy({
+            where: {
+                customerId: customer.id,
+            },
+            transaction,
+        });
+        await dependencies.db.models.address.bulkCreate(addresses.map(address => ({
+            ...address,
+            customerId: customer.id,
+        })), {transaction});
+    });
+
+    return controllerResponse(false, 200);
+}
+
 export default {
     setStatus,
+    setAddresses,
 };

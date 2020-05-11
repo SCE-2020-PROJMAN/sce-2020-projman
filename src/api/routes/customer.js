@@ -14,4 +14,9 @@ router.patch('/:userEmail/isStudent', authenticatedMiddleware(), asyncWrapper(as
     res.status(controllerResponse.status).send(controllerResponse.body);
 }));
 
+router.post('/address', authenticatedMiddleware(), asyncWrapper(async (req, res) => {
+    const controllerResponse = await customerController.setAddresses(req.requestingUser.email, req.body.addresses);
+    res.status(controllerResponse.status).send(controllerResponse.body);
+}));
+
 export default router;
