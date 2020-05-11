@@ -254,6 +254,7 @@ describe('get', () => {
     it('Flattens the hierarchy', async () => {
         const amountInCart = 3;
         const amountInStore = 5;
+        const shoppingCartProductId = 7;
         const barcode = '01234';
         const category = 'category';
         const freeText = 'freeText';
@@ -274,6 +275,7 @@ describe('get', () => {
                 brand: brand,
                 name: name,
                 studentDiscount: studentDiscount,
+                idInShoppingCart: shoppingCartProductId,
             }],
         };
         const customerEmail = 'some@email.com';
@@ -285,6 +287,7 @@ describe('get', () => {
                             assert.strictEqual(options.include[0].where.userEmail, customerEmail);
                             return {
                                 shoppingCartProducts: [{
+                                    id: shoppingCartProductId,
                                     amount: amountInCart,
                                     storeProduct: {
                                         amount: amountInStore,

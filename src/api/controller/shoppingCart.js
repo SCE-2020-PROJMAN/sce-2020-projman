@@ -105,6 +105,7 @@ async function get(customerEmail, dependencies = null) {
         brand: shoppingCartProduct.storeProduct.product.brand,
         name: shoppingCartProduct.storeProduct.product.name,
         studentDiscount: shoppingCartProduct.storeProduct.product.studentDiscount,
+        idInShoppingCart: shoppingCartProduct.id,
     }));
 
     return controllerResponse(false, 200, products);
