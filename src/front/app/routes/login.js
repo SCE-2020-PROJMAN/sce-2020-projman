@@ -1,6 +1,6 @@
 import React from 'react';
 import propTypes from 'prop-types';
-import { ActionButton, Link, Label, TextField, PrimaryButton, MessageBar, MessageBarType } from 'office-ui-fabric-react';
+import { ActionButton, Label, TextField, PrimaryButton, MessageBar, MessageBarType } from 'office-ui-fabric-react';
 import apiCall from '../apiCall';
 
 class LoginRoute extends React.Component {
