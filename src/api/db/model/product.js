@@ -36,6 +36,7 @@ export default (sequelize, dataTypes) => {
     model.associate = (models) => {
         model.hasOne(models.store, {primaryKey: true, through: models.storeProduct});
         model.belongsToMany(models.order, {through: models.productOrder});
+        model.hasMany(models.image);
     };
 
     return model;

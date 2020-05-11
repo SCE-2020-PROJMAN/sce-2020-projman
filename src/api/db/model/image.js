@@ -10,7 +10,7 @@ export default (sequelize, dataTypes) => {
     });
 
     model.associate = (models) => {
-        model.hasOne(models.product);
+        model.belongsTo(models.product);
     };
 
     return model;
