@@ -14,6 +14,12 @@ router.post('/', authenticatedMiddleware(), asyncWrapper(async (req, res) => {
     res.status(controllerResponse.status).send(controllerResponse.body);
 }));
 
+router.delete('/:shoppingCartProductId', authenticatedMiddleware(), asyncWrapper(async (req, res) => {
+    const customerEmail = req.requestingUser.email;
+    const controllerResponse = await shoppingCartController.remove(customerEmail, req.params.shoppingCartProductId);
+    res.status(controllerResponse.status).send(controllerResponse.body);
+}));
+
 router.get('/', authenticatedMiddleware(), asyncWrapper(async (req, res) => {
     const customerEmail = req.requestingUser.email;
     const controllerResponse = await shoppingCartController.get(customerEmail);

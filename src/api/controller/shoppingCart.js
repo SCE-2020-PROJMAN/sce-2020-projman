@@ -63,6 +63,43 @@ async function add(customerEmail, storePlace, productBarcode, amount, dependenci
     return controllerResponse(false, 200);
 }
 
+async function remove(customerEmail, shoppingCartProductId, dependencies = null) {
+    dependencies = dependencyInjector(['db'], dependencies);
+
+    if (!validationUtil.isEmail(customerEmail)) {
+        return controllerResponse(true, 400, 'validation/customerEmail');
+    }
+    if (!validationUtil.exists(shoppingCartProductId)) {
+        return controllerResponse(true, 400, 'validation/shoppingCartProductId');
+    }
+
+    const shoppingCart = await dependencies.db.models.shoppingCart.findOne({
+        include: [{
+            model: dependencies.db.models.customer,
+            required: true,
+            where: {
+                userEmail: customerEmail,
+            },
+        }],
+    });
+    if (!shoppingCart) {
+        return controllerResponse(true, 404, 'existence/shoppingCart');
+    }
+
+    const deletedCount = await dependencies.db.models.shoppingCartProduct.destroy({
+        where: {
+            id: shoppingCartProductId,
+            shoppingCartId: shoppingCart.id,
+        },
+    });
+
+    if (deletedCount === 0) {
+        return controllerResponse(true, 404, 'existence/shoppingCartProductId');
+    }
+    
+    return controllerResponse(false, 200);
+}
+
 async function get(customerEmail, dependencies = null) {
     dependencies = dependencyInjector(['db'], dependencies);
 
@@ -113,5 +150,6 @@ async function get(customerEmail, dependencies = null) {
 
 export default {
     add,
+    remove,
     get,
 };

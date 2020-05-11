@@ -188,6 +188,129 @@ describe('add', () => {
     });
 });
 
+describe('remove', () => {
+    it('Checks that customerEmail is valid', async () => {
+        const expected = {
+            error: true,
+            status: 400,
+            body: 'validation/customerEmail',
+        };
+        const actual = await shoppingCartController.remove('notanemail');
+        assert.strictEqual(actual.error, expected.error);
+        assert.strictEqual(actual.status, expected.status);
+        assert.strictEqual(actual.body, expected.body);
+    });
+    
+    it('Checks that shoppingCartProductId is given', async () => {
+        const expected = {
+            error: true,
+            status: 400,
+            body: 'validation/shoppingCartProductId',
+        };
+        const actual = await shoppingCartController.remove('some@email.com');
+        assert.strictEqual(actual.error, expected.error);
+        assert.strictEqual(actual.status, expected.status);
+        assert.strictEqual(actual.body, expected.body);
+    });
+
+    it('Checks that shopping cart belongs to the customer', async () => {
+        const expected = {
+            error: true,
+            status: 404,
+            body: 'existence/shoppingCart',
+        };
+        const customerEmail = 'some@email.com';
+        const shoppingCartProductId = 7;
+        let calledFindOne = false;
+        const actual = await shoppingCartController.remove(customerEmail, shoppingCartProductId, {
+            db: {
+                models: {
+                    shoppingCart: {
+                        findOne: options => {
+                            calledFindOne = true;
+                            assert.strictEqual(options.include[0].required, true);
+                            assert.strictEqual(options.include[0].where.userEmail, customerEmail);
+                            return null;
+                        },
+                    },
+                },
+            },
+        });
+        assert.strictEqual(calledFindOne, true);
+        assert.strictEqual(actual.error, expected.error);
+        assert.strictEqual(actual.status, expected.status);
+        assert.strictEqual(actual.body, expected.body);
+    });
+    
+    it('Checks that the product exists', async () => {
+        const expected = {
+            error: true,
+            status: 404,
+            body: 'existence/shoppingCartProductId',
+        };
+        const customerEmail = 'some@email.com';
+        const shoppingCartProductId = 7;
+        const shoppingCartId = 13;
+        let calledDestroy = false;
+        const actual = await shoppingCartController.remove(customerEmail, shoppingCartProductId, {
+            db: {
+                models: {
+                    shoppingCart: {
+                        findOne: () => {
+                            return {id: shoppingCartId};
+                        },
+                    },
+                    shoppingCartProduct: {
+                        destroy: options => {
+                            calledDestroy = true;
+                            assert.strictEqual(options.where.id, shoppingCartProductId);
+                            assert.strictEqual(options.where.shoppingCartId, shoppingCartId);
+                            return 0;
+                        },
+                    },
+                },
+            },
+        });
+        assert.strictEqual(calledDestroy, true);
+        assert.strictEqual(actual.error, expected.error);
+        assert.strictEqual(actual.status, expected.status);
+        assert.strictEqual(actual.body, expected.body);
+    });
+    
+    it('Deletes the product', async () => {
+        const expected = {
+            error: false,
+            status: 200,
+        };
+        const customerEmail = 'some@email.com';
+        const shoppingCartProductId = 7;
+        const shoppingCartId = 13;
+        let calledDestroy = false;
+        const actual = await shoppingCartController.remove(customerEmail, shoppingCartProductId, {
+            db: {
+                models: {
+                    shoppingCart: {
+                        findOne: () => {
+                            return {id: shoppingCartId};
+                        },
+                    },
+                    shoppingCartProduct: {
+                        destroy: options => {
+                            calledDestroy = true;
+                            assert.strictEqual(options.where.id, shoppingCartProductId);
+                            assert.strictEqual(options.where.shoppingCartId, shoppingCartId);
+                            return 1;
+                        },
+                    },
+                },
+            },
+        });
+        assert.strictEqual(calledDestroy, true);
+        assert.strictEqual(actual.error, expected.error);
+        assert.strictEqual(actual.status, expected.status);
+    });
+});
+
 describe('get', () => {
     it('Checks that customerEmail is valid', async () => {
         const expected = {
