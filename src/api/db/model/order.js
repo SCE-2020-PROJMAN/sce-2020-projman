@@ -9,6 +9,11 @@ export default (sequelize, dataTypes) => {
             type: dataTypes.DATE,
             allowNull: false,
         },
+        isDone: {
+            type: dataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,
+        },
     }, {
         freezeTableName: true,
     });
