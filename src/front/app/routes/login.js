@@ -1,6 +1,6 @@
 import React from 'react';
 import propTypes from 'prop-types';
-import { TextField, PrimaryButton, MessageBar, MessageBarType } from 'office-ui-fabric-react';
+import { Button, Link, Label, TextField, PrimaryButton, MessageBar, MessageBarType } from 'office-ui-fabric-react';
 import apiCall from '../apiCall';
 
 class LoginRoute extends React.Component {
@@ -9,7 +9,7 @@ class LoginRoute extends React.Component {
 
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleChange = this.handleChange.bind(this);
-
+        this.toRegister = this.toRegister.bind(this);
         this.state = {
             email: '',
             password: '',
@@ -69,38 +69,43 @@ class LoginRoute extends React.Component {
             }));
         };
     }
-
+    toRegister(){
+        this.props.history.push('/register');
+    }
     render() {
         return (
-            <form onSubmit={this.handleSubmit} style={{ maxWidth: '1000px', margin: 'auto' }}>
-                <TextField
-                    label="Email"
-                    type="email"
-                    value={this.state.email}
-                    onChange={this.handleChange('email')}
-                />
-                <TextField
-                    label="Password"
-                    type="password"
-                    value={this.state.password}
-                    onChange={this.handleChange('password')}
-                />
-                <PrimaryButton
-                    text="Log in"
-                    type="submit"
-                    disabled={this.state.isSubmitting}
-                />
-                {this.state.success && (
-                    <MessageBar messageBarType={MessageBarType.success}>
-                        Log in successful. Redirecting you now . . .
-                    </MessageBar>
-                )}
-                {this.state.error && (
-                    <MessageBar messageBarType={MessageBarType.error}>
-                        Could not log in. Does the password match the email? Are you registered?
-                    </MessageBar>
-                )}
-            </form>
+            <div style={{marginLeft:'1 em'}}>
+                <form onSubmit={this.handleSubmit} style={{ maxWidth: '1000px', margin: 'auto' }}>
+                    <TextField
+                        label="Email"
+                        type="email"
+                        value={this.state.email}
+                        onChange={this.handleChange('email')}
+                    />
+                    <TextField
+                        label="Password"
+                        type="password"
+                        value={this.state.password}
+                        onChange={this.handleChange('password')}
+                    />
+                    <PrimaryButton
+                        text="Log in"
+                        type="submit"
+                        disabled={this.state.isSubmitting}
+                    />
+                    {this.state.success && (
+                        <MessageBar messageBarType={MessageBarType.success}>
+                            Log in successful. Redirecting you now . . .
+                        </MessageBar>
+                    )}
+                    {this.state.error && (
+                        <MessageBar messageBarType={MessageBarType.error}>
+                            Could not log in. Does the password match the email? Are you registered?
+                        </MessageBar>
+                    )}
+                </form>
+                <Label style={{display:'inline'}}>Not registered? </Label><Button text="Click here" onClick={this.toRegister}/>
+            </div>
         );
     }
 }
