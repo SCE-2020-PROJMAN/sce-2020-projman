@@ -77,7 +77,7 @@ async function init() {
                     userEmail: defaultEmail,
                 }, {transaction}),
             ]);
-        })
+        });
     }
 }
 
