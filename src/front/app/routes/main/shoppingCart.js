@@ -2,6 +2,7 @@ import React from 'react';
 import propTypes from 'prop-types';
 import {Spinner, SpinnerSize, MessageBar, MessageBarType, Stack, PrimaryButton, IconButton} from 'office-ui-fabric-react';
 import apiCall from '../../apiCall';
+import priceUtil from '../../../../util/price';
 
 class ShoppingCart extends React.Component {
     constructor(props) {
@@ -71,13 +72,7 @@ class ShoppingCart extends React.Component {
 
     render() {
         const calculatePrice = (item) => {
-            const getPrice = () => {
-                if (this.props.isStudent && item.studentDiscount && item.studentDiscount !== 0 && item.studentDiscount !== '0' && item.studentDiscount !== '0.0' && item.studentDiscount !== '0.00') {
-                    return item.studentDiscount;
-                }
-                return item.price;
-            };
-            return getPrice() * item.amountInCart;
+            return priceUtil.getPrice(this.props.isStudent, item.price, item.studentDiscount) * item.amountInCart;
         };
 
         const calculateSubtotal = () => {

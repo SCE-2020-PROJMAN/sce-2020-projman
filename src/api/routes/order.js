@@ -14,4 +14,9 @@ router.post('/', authenticatedMiddleware(), asyncWrapper(async (req, res) => {
     res.status(controllerResponse.status).send(controllerResponse.body);
 }));
 
+router.get('/analytics', authenticatedMiddleware(), asyncWrapper(async (req, res) => {
+    const controllerResponse = await orderController.calculateAnalytics(req.requestingUser);
+    res.status(controllerResponse.status).send(controllerResponse.body);
+}));
+
 export default router;

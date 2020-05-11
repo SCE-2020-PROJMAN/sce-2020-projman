@@ -1,6 +1,8 @@
+import moment from 'moment';
 import dependencyInjector from '../util/dependencyInjector';
 import controllerResponse from '../util/controllerResponse';
 import validationUtil from '../util/validation';
+import priceUtil from '../../util/price';
 
 function create(customerEmail, shippingTime, addressId, dependencies = null) {
     dependencies = dependencyInjector(['db'], dependencies);
@@ -87,6 +89,76 @@ function create(customerEmail, shippingTime, addressId, dependencies = null) {
     });
 }
 
+async function calculateAnalytics(requestingUser, dependencies = null) {
+    dependencies = dependencyInjector(['db'], dependencies);
+
+    if (!requestingUser || !requestingUser.admin) {
+        return controllerResponse(true, 403);
+    }
+
+    const orders = await dependencies.db.models.order.findAll({
+        where: {
+            isDone: true,
+        },
+        include: [{
+            model: dependencies.db.models.productOrder,
+            required: true,
+            include: [{
+                model: dependencies.db.models.product,
+                required: true,
+            }],
+        }, {
+            model: dependencies.db.models.customer,
+            required: true,
+        }],
+    });
+
+    let totalRevenue = 0;
+    const revenuePerCategory = {};
+    const revenuePerDayOfWeek = {
+        monday: 0,
+        tuesday: 0,
+        wednesday: 0,
+        thursday: 0,
+        friday: 0,
+        saturday: 0,
+        sunday: 0,
+    };
+    orders.forEach(order => {
+        const price = priceUtil.getPrice(order.customer.isStudent, order.productOrder.product.price, order.productOrder.product.studentDiscount);
+        const amount = order.productOrder.amount;
+        const total = price * amount;
+        const category = order.productOrder.product.category;
+        const orderDate = order.creationTime;
+        const orderWeekDay = moment(orderDate).isoWeekday(); // 1 = monday, 7 = sunday
+        const weekDays = {
+            1: 'monday',
+            2: 'tuesday',
+            3: 'wednesday',
+            4: 'thursday',
+            5: 'friday',
+            6: 'saturday',
+            7: 'sunday',
+        };
+
+        totalRevenue += total;
+        if (!revenuePerCategory[category]) {
+            revenuePerCategory[category] = 0;
+        }
+        revenuePerCategory[category] += total;
+        revenuePerDayOfWeek[weekDays[orderWeekDay]] += total;
+    });
+
+    return controllerResponse(false, 200, {
+        revenue: {
+            total: totalRevenue,
+            perCategory: revenuePerCategory,
+            perDayOfWeek: revenuePerDayOfWeek,
+        },
+    });
+}
+
 export default {
     create,
+    calculateAnalytics,
 };
