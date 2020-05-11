@@ -14,7 +14,7 @@ export default (sequelize, dataTypes) => {
     });
 
     model.associate = (models) => {
-        model.belongsTo(models.customer, {foreignKey: {primaryKey: true}});
+        model.belongsTo(models.customer, {foreignKey: {primaryKey: true}, onDelete: 'CASCADE'});
         model.belongsToMany(models.product, {through: models.productOrder});
     };
 

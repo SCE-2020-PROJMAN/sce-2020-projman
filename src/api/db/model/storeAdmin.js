@@ -5,8 +5,8 @@ export default (sequelize) => {
     });
 
     model.associate = (models) => {
-        model.belongsTo(models.admin, {foreignKey: {primaryKey: true}});
-        model.belongsTo(models.store, {foreignKey: {primaryKey: true}});
+        model.belongsTo(models.admin, {foreignKey: {primaryKey: true}, onDelete: 'CASCADE'});
+        model.belongsTo(models.store, {foreignKey: {primaryKey: true}, onDelete: 'CASCADE'});
     };
 
     return model;
