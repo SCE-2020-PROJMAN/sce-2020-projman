@@ -3,7 +3,7 @@ import customerController from '../../../../src/api/controller/customer';
 
 describe('customer controller', () => {
     describe('setStatus', () => {
-        it('Checks that requesting exists', async () => {
+        it('Checks that requesting user exists', async () => {
             const expected = {
                 error: true,
                 status: 403,

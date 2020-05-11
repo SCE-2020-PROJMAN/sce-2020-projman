@@ -3,7 +3,7 @@ import productController from '../../../../src/api/controller/product';
 
 describe('product controller', () => {
     describe('create', () => {
-        it('Checks that requesting exists', async () => {
+        it('Checks that requesting user exists', async () => {
             const expected = {
                 error: true,
                 status: 403,
@@ -289,7 +289,7 @@ describe('product controller', () => {
     });
     
     describe('edit', () => {
-        it('Checks that requesting exists', async () => {
+        it('Checks that requesting user exists', async () => {
             const expected = {
                 error: true,
                 status: 403,
