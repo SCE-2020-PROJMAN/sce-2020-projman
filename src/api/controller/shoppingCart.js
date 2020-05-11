@@ -19,14 +19,24 @@ async function add(customerEmail, storePlace, productBarcode, amount, dependenci
         return controllerResponse(true, 400, 'validation/amount');
     }
 
-    const storeProduct = await dependencies.db.models.storeProduct.findOne({
+    const [storeProduct, customer] = await Promise.all([
+        dependencies.db.models.storeProduct.findOne({
         where: {
             productBarcode: productBarcode,
             storePlace: storePlace,
         },
-    });
+        }),
+        dependencies.db.models.customer.findOne({
+            where: {
+                userEmail: customerEmail,
+            },
+        }),
+    ]);
     if (!storeProduct) {
         return controllerResponse(true, 404, 'existence/storeProduct');
+    }
+    if (!customer) {
+        return controllerResponse(true, 404, 'existence/customer');
     }
 
     await dependencies.db.sequelize.transaction(async transaction => {
@@ -38,7 +48,9 @@ async function add(customerEmail, storePlace, productBarcode, amount, dependenci
                 model: dependencies.db.models.customer,
                 required: true,
             }],
-            defaults: {},
+            defaults: {
+                customerId: customer.id,
+            },
             transaction,
         });
         await dependencies.db.models.shoppingCartProduct.create({

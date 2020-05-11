@@ -62,6 +62,32 @@ describe('add', () => {
                     storeProduct: {
                         findOne: () => null,
                     },
+                    customer: {
+                        findOne: () => ({}),
+                },
+            },
+            },
+        });
+        assert.strictEqual(actual.error, expected.error);
+        assert.strictEqual(actual.status, expected.status);
+        assert.strictEqual(actual.body, expected.body);
+    });
+    
+    it('Checks that customer exists', async () => {
+        const expected = {
+            error: true,
+            status: 404,
+            body: 'existence/customer',
+        };
+        const actual = await shoppingCartController.add('some@email.com', 'storePlace', '01234', 1, {
+            db: {
+                models: {
+                    storeProduct: {
+                        findOne: () => ({}),
+                    },
+                    customer: {
+                        findOne: () => null,
+                    },
                 },
             },
         });
@@ -78,6 +104,7 @@ describe('add', () => {
         const customerEmail = 'some@email.com';
         const storeProductId = 3;
         const shoppingCartId = 5;
+        const customerId = 7;
         const transaction = {};
         let calledFindOrCreate = false;
         const actual = await shoppingCartController.add(customerEmail, 'storePlace', '01234', 1, {
@@ -89,10 +116,14 @@ describe('add', () => {
                     storeProduct: {
                         findOne: () => ({id: storeProductId}),
                     },
+                    customer: {
+                        findOne: () => ({id: customerId}),
+                    },
                     shoppingCart: {
                         findOrCreate: options => {
                             calledFindOrCreate = true;
                             assert.strictEqual(options.where['$customer.userEmail$'], customerEmail);
+                            assert.strictEqual(options.defaults.customerId, customerId);
                             assert.strictEqual(options.transaction, transaction);
                             return [{id: shoppingCartId}];
                         },
@@ -118,6 +149,7 @@ describe('add', () => {
         const productBarcode = '01234';
         const storeProductId = 3;
         const shoppingCartId = 5;
+        const customerId = 7;
         const amount = 1;
         const transaction = {};
         let calledCreate = false;
@@ -129,6 +161,9 @@ describe('add', () => {
                 models: {
                     storeProduct: {
                         findOne: () => ({id: storeProductId}),
+                    },
+                    customer: {
+                        findOne: () => ({id: customerId}),
                     },
                     shoppingCart: {
                         findOrCreate: () => {
