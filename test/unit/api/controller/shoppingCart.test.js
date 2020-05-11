@@ -92,7 +92,7 @@ describe('add', () => {
                     shoppingCart: {
                         findOrCreate: options => {
                             calledFindOrCreate = true;
-                            assert.strictEqual(options.where.customerEmail, customerEmail);
+                            assert.strictEqual(options.where['$customer.userEmail$'], customerEmail);
                             assert.strictEqual(options.transaction, transaction);
                             return [{id: shoppingCartId}];
                         },

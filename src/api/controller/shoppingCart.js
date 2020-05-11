@@ -32,8 +32,12 @@ async function add(customerEmail, storePlace, productBarcode, amount, dependenci
     await dependencies.db.sequelize.transaction(async transaction => {
         const [shoppingCart] = await dependencies.db.models.shoppingCart.findOrCreate({
             where: {
-                customerEmail: customerEmail,
+                '$customer.userEmail$': customerEmail,
             },
+            include: [{
+                model: dependencies.db.models.customer,
+                required: true,
+            }],
             defaults: {},
             transaction,
         });
