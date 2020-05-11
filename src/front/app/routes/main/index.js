@@ -176,7 +176,7 @@ class MainRoute extends React.Component {
                     ...prevState.products.slice(index + 1),
                 ],
             }));
-            apiCall('patch', 'product', productDelta)
+            apiCall('patch', `product/${product.barcode}`, productDelta)
                 .then(() => {
                     const index = this.state.products.findIndex(product => barcode === product.barcode);
                     this.setState(prevState => ({
