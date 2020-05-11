@@ -6,6 +6,8 @@ import image from './image';
 import order from './order';
 import product from './product';
 import productOrder from './productOrder';
+import shoppingCart from './shoppingCart';
+import shoppingCartProduct from './shoppingCartProduct';
 import store from './store';
 import storeAdmin from './storeAdmin';
 import storeProduct from './storeProduct';
@@ -20,6 +22,8 @@ export default {
     order,
     product,
     productOrder,
+    shoppingCart,
+    shoppingCartProduct,        
     store,
     storeAdmin,
     storeProduct,

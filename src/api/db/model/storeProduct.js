@@ -1,5 +1,10 @@
 export default (sequelize, dataTypes) => {
     const model = sequelize.define('storeProduct', {
+        id: {
+            type: dataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
+        },
         amount: {
             type: dataTypes.INTEGER,
             allowNull: false,
@@ -9,8 +14,9 @@ export default (sequelize, dataTypes) => {
     });
 
     model.associate = (models) => {
-        model.belongsTo(models.product, {foreignKey: {primaryKey: true}});
-        model.belongsTo(models.store, {foreignKey: {primaryKey: true}});
+        model.belongsTo(models.product);
+        model.belongsTo(models.store);
+        model.hasMany(models.shoppingCartProduct);
     };
 
     return model;

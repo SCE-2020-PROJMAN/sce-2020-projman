@@ -13,6 +13,7 @@ export default (sequelize, dataTypes) => {
         model.hasMany(models.address);
         model.belongsTo(models.user, {foreignKey: {primaryKey: true}, onDelete: 'CASCADE'});
         model.hasMany(models.order);
+        model.hasOne(models.shoppingCart);
     };
 
     return model;
