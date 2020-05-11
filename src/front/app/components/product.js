@@ -1,6 +1,7 @@
 import React from 'react';
 import propTypes from 'prop-types';
 import {FontIcon, DefaultButton, PrimaryButton, IconButton, TextField, Stack, Shimmer} from 'office-ui-fabric-react';
+import ImageGallery from './imageGallery';
 
 class ProductComponent extends React.Component {
     constructor(props) {
@@ -173,6 +174,9 @@ class ProductComponent extends React.Component {
                 </div>
                 <div className="body">
                     <Shimmer isDataLoaded={!this.props.isLoading}>
+                        <ImageGallery
+                            imageUrls={this.props.imageUrls}
+                        />
                         <div className="description">{this.props.freeText}</div>
                     </Shimmer>
                 </div>
@@ -217,6 +221,7 @@ ProductComponent.propTypes = {
     freeText: propTypes.string.isRequired,
     price: propTypes.string.isRequired,
     studentDiscount: propTypes.string.isRequired,
+    imageUrls: propTypes.array,
     isAvailable: propTypes.bool,
     isLoading: propTypes.bool,
     isStudent: propTypes.bool,

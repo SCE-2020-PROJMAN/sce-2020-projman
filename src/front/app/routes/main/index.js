@@ -282,6 +282,7 @@ class MainRoute extends React.Component {
                                             freeText={product.freeText}
                                             price={product.price}
                                             studentDiscount={product.studentDiscount}
+                                            imageUrls={product.images.map(image => image.url)}
                                             isLoading={product.isPatching}
                                             isAvailable={true}
                                             isStudent={this.state.isStudent}
