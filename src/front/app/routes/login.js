@@ -1,6 +1,6 @@
 import React from 'react';
 import propTypes from 'prop-types';
-import {TextField, PrimaryButton, MessageBar, MessageBarType} from 'office-ui-fabric-react';
+import { TextField, PrimaryButton, MessageBar, MessageBarType } from 'office-ui-fabric-react';
 import apiCall from '../apiCall';
 
 class LoginRoute extends React.Component {
@@ -41,11 +41,21 @@ class LoginRoute extends React.Component {
                 }, 5000);
             })
             .catch(err => {
-                console.error(err);
                 this.setState(prevState => ({
                     ...prevState,
                     error: true,
                 }));
+                if (err.response) {
+                    if (err.response.data === 'expiry/password') {
+                        this.props.history.push('/changePassword');
+                    }
+                    else {
+                        this.setState(prevState => ({
+                            ...prevState,
+                            error: true,
+                        }));
+                    }
+                }
             })
             .finally(() => {
                 this.setState(prevState => ({
@@ -66,7 +76,7 @@ class LoginRoute extends React.Component {
 
     render() {
         return (
-            <form onSubmit={this.handleSubmit} style={{maxWidth: '1000px', margin: 'auto'}}>
+            <form onSubmit={this.handleSubmit} style={{ maxWidth: '1000px', margin: 'auto' }}>
                 <TextField
                     label="Email"
                     type="email"
