@@ -4,6 +4,75 @@ import controllerResponse from '../util/controllerResponse';
 import validationUtil from '../util/validation';
 import priceUtil from '../../util/price';
 
+async function getAll(requestingUser, dependencies = null) {
+    dependencies = dependencyInjector(['db'], dependencies);
+
+    if (!requestingUser || !requestingUser.admin) {
+        return controllerResponse(true, 403);
+    }
+
+    const orders = await dependencies.db.models.order.findAll({
+        include: [{
+            model: dependencies.db.models.customer,
+            required: true,
+        }, {
+            model: dependencies.db.models.productOrder,
+            required: true,
+            include: [{
+                model: dependencies.db.models.product,
+                required: true,
+            }],
+        }, {
+            model: dependencies.db.models.address,
+            required: true,
+        }],
+    });
+    if (!orders) {
+        return controllerResponse(false, 200, []);
+    }
+
+    const processedOrders = orders.map(order => ({
+        creationTime: order.creationTime,
+        shippingTime: order.shippingTime,
+        isDone: order.isDone,
+        isLate: !order.isDone && (new Date(order.shippingTime) > (new Date())),
+        revenue: (order.productOrders || []).reduce(
+            (sum, productOrder) => (
+                sum + (
+                    productOrder.amount * priceUtil.getPrice(
+                        order.customer.isStudent,
+                        productOrder.product.price,
+                        productOrder.product.studentDiscount
+                    )
+                )
+            ),
+            0
+        ),
+        products: (order.productOrders || []).map(productOrder => ({
+            amount: productOrder.amount,
+            barcode: productOrder.product.barcode,
+            category: productOrder.product.category,
+            freeText: productOrder.product.freeText,
+            price: productOrder.product.price,
+            brand: productOrder.product.brand,
+            name: productOrder.product.name,
+            studentDiscount: productOrder.product.studentDiscount,
+        })),
+        customer: {
+            isStudent: order.customer.isStudent,
+            email: order.customer.userEmail,
+        },
+        shippingAddress: {
+            city: order.address.city,
+            street: order.address.street,
+            house: order.address.house,
+            apartment: order.address.apartment,
+        },
+    }));
+
+    return controllerResponse(false, 200, processedOrders);
+}
+
 function create(customerEmail, shippingTime, addressId, dependencies = null) {
     dependencies = dependencyInjector(['db'], dependencies);
 
@@ -200,6 +269,7 @@ async function calculateAnalytics(requestingUser, dependencies = null) {
 }
 
 export default {
+    getAll,
     create,
     destroy,
     calculateAnalytics,
