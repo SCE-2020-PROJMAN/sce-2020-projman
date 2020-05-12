@@ -90,6 +90,46 @@ function create(customerEmail, shippingTime, addressId, dependencies = null) {
     });
 }
 
+async function destroy(requestingUser, orderCreationTime, orderCustomerEmail, dependencies = null) {
+    dependencies = dependencyInjector(['db'], dependencies);
+
+    if (!requestingUser || !requestingUser.admin) {
+        return controllerResponse(true, 403);
+    }
+
+    if (!validationUtil.exists(orderCreationTime)) {
+        return controllerResponse(true, 400, 'validation/orderCreationTime');
+    }
+    
+    if (!validationUtil.isEmail(orderCustomerEmail)) {
+        return controllerResponse(true, 400, 'validation/orderCustomerEmail');
+    }
+
+    const customer = await dependencies.db.models.customer.findOne({
+        where: {
+            userEmail: orderCustomerEmail,
+        },
+    });
+    if (!customer) {
+        return controllerResponse(true, 404, 'existence/customer');
+    }
+
+    // associated `productOrder`s will be deleted automatically if their `onDelete` is set to `CASCADE`
+    const deletedCount = await dependencies.db.models.order.destroy({
+        where: {
+            creationTime: orderCreationTime,
+            customerId: customer.id,
+            isDone: false,
+        },
+    });
+
+    if (deletedCount === 0) {
+        return controllerResponse(true, 404, 'existence/order');
+    }
+
+    return controllerResponse(false, 200);
+}
+
 async function calculateAnalytics(requestingUser, dependencies = null) {
     dependencies = dependencyInjector(['db'], dependencies);
 
@@ -161,5 +201,6 @@ async function calculateAnalytics(requestingUser, dependencies = null) {
 
 export default {
     create,
+    destroy,
     calculateAnalytics,
 };
