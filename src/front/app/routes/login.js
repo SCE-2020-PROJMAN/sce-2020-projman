@@ -37,7 +37,6 @@ class LoginRoute extends React.Component {
                     success: true,
                 }));
                 setTimeout(() => {
-                    //console.log(this.props.history.location.pathname);
                     if(this.props.history.location.pathname==='/')
                     {
                         this.props.history.go('/#/');
@@ -46,10 +45,7 @@ class LoginRoute extends React.Component {
                     {
                         this.props.history.push('/');
                         window.location.reload();
-                        //this.props.history.refresh();
                     }
-                    //this.props.history.push('/front/#/');
-                    //this.props.history.refresh(true);
                 }, 5000);
             })
             .catch(err => {
@@ -77,7 +73,6 @@ class LoginRoute extends React.Component {
     }
 
     render() {
-        console.log(this.props.history.location.pathname);
         return (
             <form onSubmit={this.handleSubmit} style={{maxWidth: '1000px', margin: 'auto'}}>
                 <TextField
