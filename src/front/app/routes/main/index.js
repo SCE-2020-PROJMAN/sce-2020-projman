@@ -277,6 +277,7 @@ class MainRoute extends React.Component {
                                     {this.state.products.map(product => 
                                         <Product
                                             key={product.barcode}
+                                            barcode={product.barcode}
                                             name={product.name}
                                             brand={product.brand}
                                             category={product.category}
