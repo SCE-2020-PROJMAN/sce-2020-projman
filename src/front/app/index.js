@@ -2,6 +2,7 @@ import React from 'react';
 import {HashRouter, Route, Switch} from 'react-router-dom'; // Dev: use Router instead BrowserRouter
 import icons from './icons';
 import mainRoute from './routes/main';
+import adminRoute from './routes/admin';
 import loginRoute from './routes/login';
 import registerRoute from './routes/register';
 import changePasswordRoute from './routes/changePassword';
@@ -22,6 +23,7 @@ function App() {
                         <React.Fragment>
                             <Route exact path="/" component={mainRoute}/>
                             <Route path="/checkout" component={checkoutRoute}/>
+                            <Route path="/admin" component={adminRoute}/>
                         </React.Fragment>
                     ) : (
                         <Route exact path="/" component={loginRoute}/>

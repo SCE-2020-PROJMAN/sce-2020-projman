@@ -5,6 +5,7 @@ import bankAccountValidator from 'il-bank-account-validator';
 import moment from 'moment';
 import apiCall from '../apiCall';
 import ShoppingCart from '../components/shoppingCart';
+import addressUtil from '../../../util/address';
 
 class CheckoutRoute extends React.Component {
     constructor(props) {
@@ -132,15 +133,6 @@ class CheckoutRoute extends React.Component {
     }
     
     render() {
-        function getAddressText(address) {
-            let str = `${address.street} ${address.house}`;
-            if (address.apartment) {
-                str += `/${address.apartment}`;
-            }
-            str += `, ${address.city}`;
-            return str;
-        }
-
         if (this.state.isLoading) {
             return <Spinner
                 label="Loading . . ."
@@ -168,7 +160,7 @@ class CheckoutRoute extends React.Component {
                         label="Address"
                         options={this.state.addresses.map(address => ({
                             key: address.id,
-                            text: getAddressText(address),
+                            text: addressUtil.getText(address),
                         }))}
                         selectedKey={this.state.addressId}
                         onChange={this.setAddress}
