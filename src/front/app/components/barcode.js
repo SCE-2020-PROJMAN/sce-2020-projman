@@ -58,6 +58,10 @@ class Barcode extends React.Component {
     }
 
     render() {
+        if (!this.props.value || this.props.value === '') {
+            return <React.Fragment></React.Fragment>;
+        }
+
         return (
             <React.Fragment>
                 <canvas ref={this.canvasRef}></canvas>
