@@ -21,7 +21,7 @@ class MainRoute extends React.Component {
         this.handleChangeSort = this.handleChangeSort.bind(this);
         this.handleEditProduct = this.handleEditProduct.bind(this);
         this.addProduct = this.addProduct.bind(this);
-
+        this.onDeleteProduct = this.onDeleteProduct.bind(this);
         this.state = {
             page: 0,
             pages: 0,
@@ -64,7 +64,24 @@ class MainRoute extends React.Component {
             }));
         };
     }
-
+    onDeleteProduct(barcode) {
+        return () => {
+            apiCall('delete', 'product/' + barcode)
+                .then(() => {
+                    const index = this.state.products.findIndex(product => barcode === product.barcode);
+                    this.setState(prevState => ({
+                        ...prevState,
+                        products: [
+                            ...prevState.products.slice(0, index),
+                            ...prevState.products.slice(index + 1),
+                        ],
+                    }));
+                })
+                .catch(err => {
+                    console.error(err);
+                });
+        };
+    }
     addToCart() {
         this.setState(prevState => ({
             ...prevState,
@@ -173,7 +190,7 @@ class MainRoute extends React.Component {
                 ...prevState,
                 products: [
                     ...prevState.products.slice(0, index),
-                    {...prevState.products[index], isPatching: true},
+                    { ...prevState.products[index], isPatching: true },
                     ...prevState.products.slice(index + 1),
                 ],
             }));
@@ -215,9 +232,9 @@ class MainRoute extends React.Component {
                         <h2>Welcome to {util.capitalize(this.state.selectedStore)}</h2>
 
                         <DefaultButton
-                            style={{position: 'absolute', top: '0', right: '0'}}
-                            onClick={() => this.setState(prevState => ({...prevState, shoppingCartIsOpen: true}))}
-                            iconProps={{iconName: 'shoppingCart'}}
+                            style={{ position: 'absolute', top: '0', right: '0' }}
+                            onClick={() => this.setState(prevState => ({ ...prevState, shoppingCartIsOpen: true }))}
+                            iconProps={{ iconName: 'shoppingCart' }}
                         />
 
                         {this.state.isAdmin && (
@@ -228,7 +245,7 @@ class MainRoute extends React.Component {
                         )}
 
                         <form onSubmit={() => this.setPage(0)}>
-                            <Stack horizontal style={{alignItems: 'flex-end', marginBottom: '1em'}}>
+                            <Stack horizontal style={{ alignItems: 'flex-end', marginBottom: '1em' }}>
                                 <Stack.Item grow={1}>
                                     <TextField
                                         label="Search"
@@ -239,23 +256,23 @@ class MainRoute extends React.Component {
                                 <ComboBox
                                     label="Sort"
                                     options={[
-                                        {key: '', text: 'None'},
-                                        {key: 'category=asc', text: 'Category (ascending)'},
-                                        {key: 'category=desc', text: 'Category (descending)'},
-                                        {key: 'price=asc', text: 'Price (ascending)'},
-                                        {key: 'price=desc', text: 'Price (descending)'},
-                                        {key: 'studentDiscount=asc', text: 'Price for students (ascending)'},
-                                        {key: 'studentDiscount=desc', text: 'Price for students (descending)'},
-                                        {key: 'brand=asc', text: 'Brand (ascending)'},
-                                        {key: 'brand=desc', text: 'Brand (descending)'},
-                                        {key: 'name=asc', text: 'Name (ascending)'},
-                                        {key: 'name=desc', text: 'Name (descending)'},
+                                        { key: '', text: 'None' },
+                                        { key: 'category=asc', text: 'Category (ascending)' },
+                                        { key: 'category=desc', text: 'Category (descending)' },
+                                        { key: 'price=asc', text: 'Price (ascending)' },
+                                        { key: 'price=desc', text: 'Price (descending)' },
+                                        { key: 'studentDiscount=asc', text: 'Price for students (ascending)' },
+                                        { key: 'studentDiscount=desc', text: 'Price for students (descending)' },
+                                        { key: 'brand=asc', text: 'Brand (ascending)' },
+                                        { key: 'brand=desc', text: 'Brand (descending)' },
+                                        { key: 'name=asc', text: 'Name (ascending)' },
+                                        { key: 'name=desc', text: 'Name (descending)' },
                                     ]}
                                     selectedKey={this.state.sort}
                                     onChange={this.handleChangeSort}
                                 />
                                 <PrimaryButton
-                                    iconProps={{iconName: 'search'}}
+                                    iconProps={{ iconName: 'search' }}
                                     text="Search"
                                     type="submit"
                                 />
@@ -270,11 +287,11 @@ class MainRoute extends React.Component {
                         ) : (
                             this.state.error ? (
                                 <MessageBar messageBarType={MessageBarType.error}>
-                                    There was an error. Try agian later
+                                        There was an error. Try agian later
                                 </MessageBar>
                             ) : (
                                 <div className="productList">
-                                    {this.state.products.map(product => 
+                                    {this.state.products.map(product =>
                                         <Product
                                             key={product.barcode}
                                             barcode={product.barcode}
@@ -291,6 +308,7 @@ class MainRoute extends React.Component {
                                             isEditable={this.state.isAdmin}
                                             onAddToCart={this.openAddToCartDialog(product.barcode)}
                                             onEdit={this.handleEditProduct(product.barcode)}
+                                            onDeleteProduct={this.onDeleteProduct(product.barcode)}
                                         />
                                     )}
                                 </div>
@@ -305,7 +323,7 @@ class MainRoute extends React.Component {
                         <Panel
                             headerText="Shopping Cart"
                             isOpen={this.state.shoppingCartIsOpen}
-                            onDismiss={() => this.setState(prevState => ({...prevState, shoppingCartIsOpen: false}))}
+                            onDismiss={() => this.setState(prevState => ({ ...prevState, shoppingCartIsOpen: false }))}
                             closeButtonAriaLabel="Close"
                         >        
                             <ShoppingCart
@@ -326,13 +344,13 @@ class MainRoute extends React.Component {
                             <div className="header">
                                 <IconButton
                                     className="closeButton"
-                                    iconProps={{iconName: 'cancel'}}
-                                    onClick={() => this.setState(prevState => ({...prevState, addToCartModalIsOpen: false, addToCartAmount: ''}))}
+                                    iconProps={{ iconName: 'cancel' }}
+                                    onClick={() => this.setState(prevState => ({ ...prevState, addToCartModalIsOpen: false, addToCartAmount: '' }))}
                                 />
                             </div>
                             <div className="body">
                                 {this.state.addToCartLoading ? (
-                                    <Spinner 
+                                    <Spinner
                                         label="Processing . . ."
                                         size={SpinnerSize.large}
                                     />
@@ -342,7 +360,7 @@ class MainRoute extends React.Component {
                                         value={this.state.addToCartAmount}
                                         onChange={this.handleChange('addToCartAmount')}
                                         type="number"
-                                        iconProps={{iconName: 'hash'}}
+                                        iconProps={{ iconName: 'hash' }}
                                     />
                                 )}
                                 {this.state.addToCartError && (
@@ -353,7 +371,7 @@ class MainRoute extends React.Component {
                             </div>
                             <div className="footer">
                                 <PrimaryButton
-                                    iconProps={{iconName: 'cartPlus'}}
+                                    iconProps={{ iconName: 'cartPlus' }}
                                     text="Add to cart"
                                     type="button"
                                     onClick={this.addToCart}

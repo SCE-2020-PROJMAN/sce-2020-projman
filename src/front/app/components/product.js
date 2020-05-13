@@ -142,6 +142,11 @@ class ProductComponent extends React.Component {
                                 onClick={this.onSave}
                                 iconProps={{iconName: 'save'}}
                             />
+                            <PrimaryButton
+                                text="Delete"
+                                onClick={this.props.onDeleteProduct}
+                                // iconProps={{iconName: 'save'}}
+                            />
                         </Stack>
                     </div>
                 </div>
@@ -243,6 +248,7 @@ ProductComponent.propTypes = {
     onAddToCart: propTypes.func,
     onEdit: propTypes.func,
     onCancelEdit: propTypes.func,
+    onDeleteProduct: propTypes.func,
 };
 
 export default ProductComponent;
