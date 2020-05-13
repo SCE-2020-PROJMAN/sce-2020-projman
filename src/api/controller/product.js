@@ -168,6 +168,9 @@ async function search(sort, search, page = 0, pageSize = 20, dependencies = null
             include: [{
                 model: dependencies.db.models.image,
                 required: false,
+            }, {
+                model: dependencies.db.models.storeProduct,
+                required: false,
             }],
             limit: pageSize,
             offset: page * pageSize,

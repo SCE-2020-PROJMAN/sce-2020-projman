@@ -224,6 +224,14 @@ class MainRoute extends React.Component {
     }
 
     render() {
+        const isAvailable = (product) => {
+            const storeProduct = product.storeProducts.find(product => product.storePlace === this.state.selectedStore);
+            if (!storeProduct) {
+                return false;
+            }
+            return storeProduct.amount > 0;
+        };
+
         return (
             <React.Fragment>
                 <h1>SuperSami</h1>
@@ -303,7 +311,7 @@ class MainRoute extends React.Component {
                                             studentDiscount={product.studentDiscount}
                                             imageUrls={(product.images || []).map(image => image.url)}
                                             isLoading={product.isPatching}
-                                            isAvailable={true}
+                                            isAvailable={isAvailable(product)}
                                             isStudent={this.state.isStudent}
                                             isEditable={this.state.isAdmin}
                                             onAddToCart={this.openAddToCartDialog(product.barcode)}
