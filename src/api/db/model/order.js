@@ -27,6 +27,7 @@ export default (sequelize, dataTypes) => {
         model.belongsTo(models.customer, {onDelete: 'CASCADE'});
         model.belongsToMany(models.product, {through: models.productOrder});
         model.belongsTo(models.address);
+        model.hasMany(models.productOrder);
     };
 
     return model;
