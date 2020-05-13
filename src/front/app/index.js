@@ -5,6 +5,7 @@ import mainRoute from './routes/main';
 import loginRoute from './routes/login';
 import registerRoute from './routes/register';
 import changePasswordRoute from './routes/changePassword';
+import checkoutRoute from './routes/checkout';
 
 icons.initialize();
 
@@ -18,7 +19,10 @@ function App() {
             <HashRouter>
                 <Switch>
                     {isLoggedIn() ? (
-                        <Route exact path="/" component={mainRoute}/>
+                        <React.Fragment>
+                            <Route exact path="/" component={mainRoute}/>
+                            <Route path="/checkout" component={checkoutRoute}/>
+                        </React.Fragment>
                     ) : (
                         <Route exact path="/" component={loginRoute}/>
                     )}
