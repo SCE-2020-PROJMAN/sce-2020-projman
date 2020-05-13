@@ -82,7 +82,7 @@ function create(customerEmail, shippingTime, addressId, dependencies = null) {
     if (!validationUtil.isDate(shippingTime)) {
         return controllerResponse(true, 400, 'validation/shippingTime');
     }
-    if (!validationUtil.isNumber()) {
+    if (!validationUtil.isNumber(Number(addressId))) {
         return controllerResponse(true, 400, 'validation/addressId');
     }
     
@@ -135,10 +135,10 @@ function create(customerEmail, shippingTime, addressId, dependencies = null) {
             orderId: order.id,
             productBarcode: shoppingCartProduct.storeProduct.product.barcode,
         }));
-
+        
         await Promise.all([
             ...productOrders.map(productOrder => {
-                return dependencies.db.models.storeProduct.decrement(['amount', productOrder.amount], {
+                return dependencies.db.models.storeProduct.decrement({amount: productOrder.amount}, {
                     where: {
                         productBarcode: productOrder.productBarcode,
                         // TODO: Also the particular store

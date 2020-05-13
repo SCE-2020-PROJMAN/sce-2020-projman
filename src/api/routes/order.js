@@ -13,7 +13,7 @@ router.get('/all', authenticatedMiddleware(), asyncWrapper(async (req, res) => {
 router.post('/', authenticatedMiddleware(), asyncWrapper(async (req, res) => {
     const controllerResponse = await orderController.create(
         req.requestingUser.email,
-        req.body.shoppingTime,
+        req.body.shippingTime,
         req.body.addressId,
     );
     res.status(controllerResponse.status).send(controllerResponse.body);
