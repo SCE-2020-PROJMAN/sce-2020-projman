@@ -1,12 +1,13 @@
 import React from 'react';
-import { MessageBar, MessageBarType, Spinner, SpinnerSize, TextField, Stack, PrimaryButton, DefaultButton, ComboBox, Modal, IconButton, Panel } from 'office-ui-fabric-react';
+import propTypes from 'prop-types';
+import {MessageBar, MessageBarType, Spinner, SpinnerSize, TextField, Stack, PrimaryButton, DefaultButton, ComboBox, Modal, IconButton, Panel} from 'office-ui-fabric-react';
 import StoreSelect from '../../components/storeSelect';
 import Product from '../../components/product';
 import Paginator from '../../components/paginator';
 import util from '../../util';
 import apiCall from '../../apiCall';
 import CreateProduct from './createProduct';
-import ShoppingCart from './shoppingCart';
+import ShoppingCart from '../../components/shoppingCart';
 
 class MainRoute extends React.Component {
     constructor(props) {
@@ -293,13 +294,14 @@ class MainRoute extends React.Component {
                                     {this.state.products.map(product =>
                                         <Product
                                             key={product.barcode}
+                                            barcode={product.barcode}
                                             name={product.name}
                                             brand={product.brand}
                                             category={product.category}
                                             freeText={product.freeText}
                                             price={product.price}
                                             studentDiscount={product.studentDiscount}
-                                            imageUrls={product.images.map(image => image.url)}
+                                            imageUrls={(product.images || []).map(image => image.url)}
                                             isLoading={product.isPatching}
                                             isAvailable={true}
                                             isStudent={this.state.isStudent}
@@ -323,9 +325,14 @@ class MainRoute extends React.Component {
                             isOpen={this.state.shoppingCartIsOpen}
                             onDismiss={() => this.setState(prevState => ({ ...prevState, shoppingCartIsOpen: false }))}
                             closeButtonAriaLabel="Close"
-                        >
+                        >        
                             <ShoppingCart
                                 isStudent={this.state.isStudent}
+                            />
+                            <PrimaryButton
+                                text="Check Out"
+                                type="button"
+                                onClick={() => this.props.history.push('/checkout')}
                             />
                         </Panel>
 
@@ -382,5 +389,9 @@ class MainRoute extends React.Component {
         );
     }
 }
+
+MainRoute.propTypes = {
+    history: propTypes.any,
+};
 
 export default MainRoute;

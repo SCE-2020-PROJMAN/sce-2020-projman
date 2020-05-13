@@ -1,8 +1,8 @@
 import React from 'react';
 import propTypes from 'prop-types';
-import {Spinner, SpinnerSize, MessageBar, MessageBarType, Stack, PrimaryButton, IconButton} from 'office-ui-fabric-react';
-import apiCall from '../../apiCall';
-import priceUtil from '../../../../util/price';
+import {Spinner, SpinnerSize, MessageBar, MessageBarType, Stack, IconButton} from 'office-ui-fabric-react';
+import apiCall from '../apiCall';
+import priceUtil from '../../../util/price';
 
 class ShoppingCart extends React.Component {
     constructor(props) {
@@ -109,10 +109,6 @@ class ShoppingCart extends React.Component {
                 </Stack.Item>
                 <div>
                     <p>Subtotal: {calculateSubtotal()}</p>
-                    <PrimaryButton
-                        text="Check Out"
-                        type="button"
-                    />
                 </div>
             </Stack>
         );

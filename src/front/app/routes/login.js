@@ -37,7 +37,15 @@ class LoginRoute extends React.Component {
                     success: true,
                 }));
                 setTimeout(() => {
-                    this.props.history.push('/');
+                    if(this.props.history.location.pathname==='/')
+                    {
+                        this.props.history.go('/#/');
+                    }
+                    if(this.props.history.location.pathname==='/login')
+                    {
+                        this.props.history.push('/');
+                        window.location.reload();
+                    }
                 }, 5000);
             })
             .catch(err => {

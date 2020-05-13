@@ -67,7 +67,7 @@ class StoreSelect extends React.Component {
                             <ComboBox
                                 label="Store"
                                 options={this.state.stores}
-                                value={this.selectedStore}
+                                selectedKey={this.selectedStore}
                                 onChange={this.setStore}
                             />
                         ) : (

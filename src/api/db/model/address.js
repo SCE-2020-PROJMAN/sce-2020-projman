@@ -1,5 +1,10 @@
 export default (sequelize, dataTypes) => {
     const model = sequelize.define('address', {
+        id: {
+            type: dataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
+        },
         city: {
             type: dataTypes.STRING,
             allowNull: false,

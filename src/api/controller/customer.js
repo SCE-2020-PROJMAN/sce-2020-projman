@@ -32,6 +32,29 @@ async function setStatus(requestingUser, userEmail, isStudent, dependencies = nu
     return controllerResponse(false);
 }
 
+async function getAddresses(userEmail, dependencies = []) {
+    dependencies = dependencyInjector(['db'], dependencies);
+    
+    if (!validationUtil.isEmail(userEmail)) {
+        return controllerResponse(true, 400, 'validation/userEmail');
+    }
+
+    const addresses = await dependencies.db.models.address.findAll({
+        include: [{
+            model: dependencies.db.models.customer,
+            required: true,
+            where: {
+                userEmail: userEmail,
+            },
+        }],
+    });
+    if (!addresses || addresses.length === 0) {
+        return controllerResponse(false, 200, []);
+    }
+    
+    return controllerResponse(false, 200, addresses);
+}
+
 async function setAddresses(userEmail, addresses, dependencies = []) {
     dependencies = dependencyInjector(['db'], dependencies);
 
@@ -82,5 +105,6 @@ async function setAddresses(userEmail, addresses, dependencies = []) {
 
 export default {
     setStatus,
+    getAddresses,
     setAddresses,
 };

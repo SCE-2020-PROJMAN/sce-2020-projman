@@ -2,6 +2,7 @@ import React from 'react';
 import propTypes from 'prop-types';
 import {FontIcon, DefaultButton, PrimaryButton, IconButton, TextField, Stack, Shimmer} from 'office-ui-fabric-react';
 import ImageGallery from './imageGallery';
+import Barcode from './barcode';
 
 class ProductComponent extends React.Component {
     constructor(props) {
@@ -214,12 +215,24 @@ class ProductComponent extends React.Component {
                         </Shimmer>
                     </div>
                 </div>
+                {this.props.barcode !== undefined && (
+                    <div className="barcode">
+                        <Barcode
+                            value={this.props.barcode}
+                            height={16}
+                            fontSize={10}
+                            margin={0}
+                            background="transparent"
+                        />
+                    </div>
+                )}
             </div>
         );
     }
 }
 
 ProductComponent.propTypes = {
+    barcode: propTypes.any,
     name: propTypes.string.isRequired,
     brand: propTypes.string.isRequired,
     category: propTypes.string.isRequired,

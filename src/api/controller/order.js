@@ -4,6 +4,75 @@ import controllerResponse from '../util/controllerResponse';
 import validationUtil from '../util/validation';
 import priceUtil from '../../util/price';
 
+async function getAll(requestingUser, dependencies = null) {
+    dependencies = dependencyInjector(['db'], dependencies);
+
+    if (!requestingUser || !requestingUser.admin) {
+        return controllerResponse(true, 403);
+    }
+
+    const orders = await dependencies.db.models.order.findAll({
+        include: [{
+            model: dependencies.db.models.customer,
+            required: true,
+        }, {
+            model: dependencies.db.models.productOrder,
+            required: true,
+            include: [{
+                model: dependencies.db.models.product,
+                required: true,
+            }],
+        }, {
+            model: dependencies.db.models.address,
+            required: true,
+        }],
+    });
+    if (!orders) {
+        return controllerResponse(false, 200, []);
+    }
+
+    const processedOrders = orders.map(order => ({
+        creationTime: order.creationTime,
+        shippingTime: order.shippingTime,
+        isDone: order.isDone,
+        isLate: !order.isDone && (new Date(order.shippingTime) > (new Date())),
+        revenue: (order.productOrders || []).reduce(
+            (sum, productOrder) => (
+                sum + (
+                    productOrder.amount * priceUtil.getPrice(
+                        order.customer.isStudent,
+                        productOrder.product.price,
+                        productOrder.product.studentDiscount
+                    )
+                )
+            ),
+            0
+        ),
+        products: (order.productOrders || []).map(productOrder => ({
+            amount: productOrder.amount,
+            barcode: productOrder.product.barcode,
+            category: productOrder.product.category,
+            freeText: productOrder.product.freeText,
+            price: productOrder.product.price,
+            brand: productOrder.product.brand,
+            name: productOrder.product.name,
+            studentDiscount: productOrder.product.studentDiscount,
+        })),
+        customer: {
+            isStudent: order.customer.isStudent,
+            email: order.customer.userEmail,
+        },
+        shippingAddress: {
+            city: order.address.city,
+            street: order.address.street,
+            house: order.address.house,
+            apartment: order.address.apartment,
+        },
+    }));
+
+    return controllerResponse(false, 200, processedOrders);
+}
+
 function create(customerEmail, shippingTime, addressId, dependencies = null) {
     dependencies = dependencyInjector(['db'], dependencies);
 
@@ -13,7 +82,7 @@ function create(customerEmail, shippingTime, addressId, dependencies = null) {
     if (!validationUtil.isDate(shippingTime)) {
         return controllerResponse(true, 400, 'validation/shippingTime');
     }
-    if (!validationUtil.isNumber()) {
+    if (!validationUtil.isNumber(Number(addressId))) {
         return controllerResponse(true, 400, 'validation/addressId');
     }
     
@@ -66,10 +135,10 @@ function create(customerEmail, shippingTime, addressId, dependencies = null) {
             orderId: order.id,
             productBarcode: shoppingCartProduct.storeProduct.product.barcode,
         }));
-
+        
         await Promise.all([
             ...productOrders.map(productOrder => {
-                return dependencies.db.models.storeProduct.decrement(['amount', productOrder.amount], {
+                return dependencies.db.models.storeProduct.decrement({amount: productOrder.amount}, {
                     where: {
                         productBarcode: productOrder.productBarcode,
                         // TODO: Also the particular store
@@ -88,6 +157,46 @@ function create(customerEmail, shippingTime, addressId, dependencies = null) {
 
         return controllerResponse(false, 200);
     });
+}
+
+async function destroy(requestingUser, orderCreationTime, orderCustomerEmail, dependencies = null) {
+    dependencies = dependencyInjector(['db'], dependencies);
+
+    if (!requestingUser || !requestingUser.admin) {
+        return controllerResponse(true, 403);
+    }
+
+    if (!validationUtil.exists(orderCreationTime)) {
+        return controllerResponse(true, 400, 'validation/orderCreationTime');
+    }
+    
+    if (!validationUtil.isEmail(orderCustomerEmail)) {
+        return controllerResponse(true, 400, 'validation/orderCustomerEmail');
+    }
+
+    const customer = await dependencies.db.models.customer.findOne({
+        where: {
+            userEmail: orderCustomerEmail,
+        },
+    });
+    if (!customer) {
+        return controllerResponse(true, 404, 'existence/customer');
+    }
+
+    // associated `productOrder`s will be deleted automatically if their `onDelete` is set to `CASCADE`
+    const deletedCount = await dependencies.db.models.order.destroy({
+        where: {
+            creationTime: orderCreationTime,
+            customerId: customer.id,
+            isDone: false,
+        },
+    });
+
+    if (deletedCount === 0) {
+        return controllerResponse(true, 404, 'existence/order');
+    }
+
+    return controllerResponse(false, 200);
 }
 
 async function calculateAnalytics(requestingUser, dependencies = null) {
@@ -126,28 +235,30 @@ async function calculateAnalytics(requestingUser, dependencies = null) {
         sunday: 0,
     };
     orders.forEach(order => {
-        const price = priceUtil.getPrice(order.customer.isStudent, order.productOrder.product.price, order.productOrder.product.studentDiscount);
-        const amount = order.productOrder.amount;
-        const total = price * amount;
-        const category = order.productOrder.product.category;
-        const orderDate = order.creationTime;
-        const orderWeekDay = moment(orderDate).isoWeekday(); // 1 = monday, 7 = sunday
-        const weekDays = {
-            1: 'monday',
-            2: 'tuesday',
-            3: 'wednesday',
-            4: 'thursday',
-            5: 'friday',
-            6: 'saturday',
-            7: 'sunday',
-        };
-
-        totalRevenue += total;
-        if (!revenuePerCategory[category]) {
-            revenuePerCategory[category] = 0;
-        }
-        revenuePerCategory[category] += total;
-        revenuePerDayOfWeek[weekDays[orderWeekDay]] += total;
+        order.productOrders.forEach(productOrder => {
+            const price = priceUtil.getPrice(order.customer.isStudent, productOrder.product.price, productOrder.product.studentDiscount);
+            const amount = productOrder.amount;
+            const total = price * amount;
+            const category = productOrder.product.category;
+            const orderDate = order.creationTime;
+            const orderWeekDay = moment(orderDate).isoWeekday(); // 1 = monday, 7 = sunday
+            const weekDays = {
+                1: 'monday',
+                2: 'tuesday',
+                3: 'wednesday',
+                4: 'thursday',
+                5: 'friday',
+                6: 'saturday',
+                7: 'sunday',
+            };
+    
+            totalRevenue += total;
+            if (!revenuePerCategory[category]) {
+                revenuePerCategory[category] = 0;
+            }
+            revenuePerCategory[category] += total;
+            revenuePerDayOfWeek[weekDays[orderWeekDay]] += total;
+        });
     });
 
     return controllerResponse(false, 200, {
@@ -160,6 +271,8 @@ async function calculateAnalytics(requestingUser, dependencies = null) {
 }
 
 export default {
+    getAll,
     create,
+    destroy,
     calculateAnalytics,
 };
