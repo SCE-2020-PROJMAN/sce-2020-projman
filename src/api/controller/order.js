@@ -235,28 +235,30 @@ async function calculateAnalytics(requestingUser, dependencies = null) {
         sunday: 0,
     };
     orders.forEach(order => {
-        const price = priceUtil.getPrice(order.customer.isStudent, order.productOrder.product.price, order.productOrder.product.studentDiscount);
-        const amount = order.productOrder.amount;
-        const total = price * amount;
-        const category = order.productOrder.product.category;
-        const orderDate = order.creationTime;
-        const orderWeekDay = moment(orderDate).isoWeekday(); // 1 = monday, 7 = sunday
-        const weekDays = {
-            1: 'monday',
-            2: 'tuesday',
-            3: 'wednesday',
-            4: 'thursday',
-            5: 'friday',
-            6: 'saturday',
-            7: 'sunday',
-        };
-
-        totalRevenue += total;
-        if (!revenuePerCategory[category]) {
-            revenuePerCategory[category] = 0;
-        }
-        revenuePerCategory[category] += total;
-        revenuePerDayOfWeek[weekDays[orderWeekDay]] += total;
+        order.productOrders.forEach(productOrder => {
+            const price = priceUtil.getPrice(order.customer.isStudent, productOrder.product.price, productOrder.product.studentDiscount);
+            const amount = productOrder.amount;
+            const total = price * amount;
+            const category = productOrder.product.category;
+            const orderDate = order.creationTime;
+            const orderWeekDay = moment(orderDate).isoWeekday(); // 1 = monday, 7 = sunday
+            const weekDays = {
+                1: 'monday',
+                2: 'tuesday',
+                3: 'wednesday',
+                4: 'thursday',
+                5: 'friday',
+                6: 'saturday',
+                7: 'sunday',
+            };
+    
+            totalRevenue += total;
+            if (!revenuePerCategory[category]) {
+                revenuePerCategory[category] = 0;
+            }
+            revenuePerCategory[category] += total;
+            revenuePerDayOfWeek[weekDays[orderWeekDay]] += total;
+        });
     });
 
     return controllerResponse(false, 200, {
