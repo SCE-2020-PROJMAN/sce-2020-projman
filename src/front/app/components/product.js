@@ -21,6 +21,7 @@ class ProductComponent extends React.Component {
                 freeText: '',
                 price: '',
                 studentDiscount: '',
+                amount: '',
             },
         };
     }
@@ -36,7 +37,7 @@ class ProductComponent extends React.Component {
     }
 
     onSave() {
-        const delta = {};
+        const delta = {barcode: this.props.barcode};
         const addIfChanged = (key, val) => {
             if (val && val !== '') {
                 delta[key] = val;
@@ -49,6 +50,9 @@ class ProductComponent extends React.Component {
         addIfChanged('price', this.state.editted.price);
         addIfChanged('studentDiscount', this.state.editted.studentDiscount);
 
+        if (this.state.amount !== '' && this.props.onChangeAmount) {
+            this.props.onChangeAmount(this.state.editted.amount);
+        }
         if (this.props.onEdit) {
             this.props.onEdit(delta);
         }
@@ -63,6 +67,7 @@ class ProductComponent extends React.Component {
                 freeText: '',
                 price: '',
                 studentDiscount: '',
+                amount: '',
             },
         }));
     }
@@ -131,6 +136,13 @@ class ProductComponent extends React.Component {
                                 iconProps={{iconName: 'shekel'}}
                             />
                         </Stack>
+                        {this.props.onChangeAmount &&
+                            <TextField
+                                label="Stock"
+                                value={this.state.editted.amount || this.props.amount || ''}
+                                onChange={this.handleEdit('amount')}
+                            />
+                        }
                         <Stack horizontal>
                             <DefaultButton
                                 text="Cancel"
@@ -240,6 +252,7 @@ ProductComponent.propTypes = {
     price: propTypes.string.isRequired,
     studentDiscount: propTypes.string.isRequired,
     imageUrls: propTypes.array,
+    amount: propTypes.number,
     isAvailable: propTypes.bool,
     isLoading: propTypes.bool,
     isStudent: propTypes.bool,
@@ -249,6 +262,7 @@ ProductComponent.propTypes = {
     onEdit: propTypes.func,
     onCancelEdit: propTypes.func,
     onDeleteProduct: propTypes.func,
+    onChangeAmount: propTypes.func,
 };
 
 export default ProductComponent;

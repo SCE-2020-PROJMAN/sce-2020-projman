@@ -22,6 +22,8 @@ class MainRoute extends React.Component {
         this.handleEditProduct = this.handleEditProduct.bind(this);
         this.addProduct = this.addProduct.bind(this);
         this.onDeleteProduct = this.onDeleteProduct.bind(this);
+        this.onChangeAmount = this.onChangeAmount.bind(this);
+
         this.state = {
             page: 0,
             pages: 0,
@@ -223,13 +225,41 @@ class MainRoute extends React.Component {
         }));
     }
 
+    onChangeAmount(barcode) {
+        return amount => {
+            apiCall('patch', `store/${this.state.selectedStore}/product/${barcode}`, {amount: amount})
+                .then(() => {
+                    const index = this.state.products.findIndex(product => barcode === product.barcode);
+                    if (index !== -1) {
+                        const storeProduct = this.state.products[index].storeProducts.find(product => product.storePlace === this.state.selectedStore);
+                        const changedStoreProduct = {...storeProduct, amount: amount};
+                        this.setState(prevState => ({
+                            ...prevState,
+                            products: [
+                                ...prevState.products.slice(0, index),
+                                { ...prevState.products[index],  storeProducts: [...prevState.products[index].storeProducts, changedStoreProduct]},
+                                ...prevState.products.slice(index + 1),
+                            ],
+                        }));
+                    }
+                });
+        };
+    }
+
     render() {
-        const isAvailable = (product) => {
+        const getAmount = product => {
+            if (!product || !product.storeProducts) {
+                return 0;
+            }
             const storeProduct = product.storeProducts.find(product => product.storePlace === this.state.selectedStore);
             if (!storeProduct) {
-                return false;
+                return 0;
             }
-            return storeProduct.amount > 0;
+            return storeProduct.amount;
+        };
+
+        const isAvailable = product => {
+            return getAmount(product) > 0;
         };
 
         return (
@@ -309,6 +339,7 @@ class MainRoute extends React.Component {
                                             freeText={product.freeText}
                                             price={product.price}
                                             studentDiscount={product.studentDiscount}
+                                            amount={getAmount(product)}
                                             imageUrls={(product.images || []).map(image => image.url)}
                                             isLoading={product.isPatching}
                                             isAvailable={isAvailable(product)}
@@ -317,6 +348,7 @@ class MainRoute extends React.Component {
                                             onAddToCart={this.openAddToCartDialog(product.barcode)}
                                             onEdit={this.handleEditProduct(product.barcode)}
                                             onDeleteProduct={this.onDeleteProduct(product.barcode)}
+                                            onChangeAmount={this.onChangeAmount(product.barcode)}
                                         />
                                     )}
                                 </div>

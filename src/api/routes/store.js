@@ -10,4 +10,9 @@ router.get('/all', authenticatedMiddleware(), asyncWrapper(async (req, res) => {
     res.status(controllerResponse.status).send(controllerResponse.body);
 }));
 
+router.patch('/:store/product/:barcode', authenticatedMiddleware(), asyncWrapper(async (req, res) => {
+    const controllerResponse = await storeController.updateProductAmount(req.requestingUser, req.params.store, req.params.barcode, req.body.amount);
+    res.status(controllerResponse.status).send(controllerResponse.body);
+}));
+
 export default router;
