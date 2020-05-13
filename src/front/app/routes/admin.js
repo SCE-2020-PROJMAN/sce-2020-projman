@@ -1,8 +1,10 @@
 import React from 'react';
 import propTypes from 'prop-types';
 import {Spinner, SpinnerSize, MessageBar, MessageBarType, DetailsList, FontIcon, SelectionMode, DetailsListLayoutMode} from 'office-ui-fabric-react';
+import {HorizontalBar} from 'react-chartjs-2';
 import apiCall from '../apiCall';
 import addressUtil from '../../../util/address';
+import util from '../util';
 
 class AdminRoute extends React.Component {
     constructor(props) {
@@ -12,6 +14,13 @@ class AdminRoute extends React.Component {
             loading: false,
             error: false,
             orders: [],
+            analytics: {
+                revenue: {
+                    total: 0,
+                    perCategory: {},
+                    perDayOfWeek: {},
+                },
+            },
         };
     }
 
@@ -33,6 +42,13 @@ class AdminRoute extends React.Component {
                     this.setState(prevState => ({
                         ...prevState,
                         orders: res.data,
+                    }));
+                }),
+            apiCall('get', 'order/analytics')
+                .then(res => {
+                    this.setState(prevState => ({
+                        ...prevState,
+                        analytics: res.data,
                     }));
                 }),
         ])
@@ -75,6 +91,9 @@ class AdminRoute extends React.Component {
 
         return (
             <React.Fragment>
+                <h1>Admin</h1>
+
+                <h2>Orders</h2>
                 <DetailsList
                     compact={true}
                     selectionMode={SelectionMode.none}
@@ -142,6 +161,27 @@ class AdminRoute extends React.Component {
                         fieldName: 'address',
                         minWidth: 256,
                     }]}
+                />
+
+                <h2>Analytics</h2>
+                <p>Total revenue: {this.state.analytics.revenue.total}</p>
+                {Object.keys(this.state.analytics.revenue.perCategory || {}).map(categoryName =>
+                    <p key={categoryName}>
+                        Revenue ({categoryName} category): {this.state.analytics.revenue.perCategory[categoryName]}
+                    </p>
+                )}
+                <HorizontalBar
+                    data={{
+                        labels: Object.keys(this.state.analytics.revenue.perDayOfWeek || {}).map(day => util.capitalize(day)),
+                        datasets: [{
+                            label: 'Revenue',
+                            backgroundColor: '#2e9636',
+                            data: Object.values(this.state.analytics.revenue.perDayOfWeek || {}),
+                        }],
+                    }}
+                    options={{
+                        legend: {display: false},
+                    }}
                 />
             </React.Fragment>
         );
