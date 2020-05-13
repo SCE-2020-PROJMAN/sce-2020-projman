@@ -123,6 +123,11 @@ function create(customerEmail, shippingTime, addressId, dependencies = null) {
             return controllerResponse(true, 404, 'existence/customer');
         }
 
+        const outOfStock = shoppingCart.shoppingCartProducts.reduce((prev, shoppingCartProduct) => (prev || shoppingCartProduct.amount > shoppingCartProduct.storeProduct.amount), false);
+        if (outOfStock) {
+            return controllerResponse(true, 422, 'bl/storeProduct/amount');
+        }
+
         const order = await dependencies.db.models.order.create({
             creationTime: Date.now(),
             shippingTime: shippingTime,
