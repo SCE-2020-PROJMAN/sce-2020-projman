@@ -35,7 +35,7 @@ async function getAll(requestingUser, dependencies = null) {
         creationTime: order.creationTime,
         shippingTime: order.shippingTime,
         isDone: order.isDone,
-        isLate: !order.isDone && (new Date(order.shippingTime) > (new Date())),
+        isLate: !order.isDone && (new Date(order.shippingTime) < (new Date())),
         revenue: (order.productOrders || []).reduce(
             (sum, productOrder) => (
                 sum + (
