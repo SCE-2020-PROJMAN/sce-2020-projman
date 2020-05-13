@@ -137,11 +137,11 @@ function create(customerEmail, shippingTime, addressId, dependencies = null) {
         }));
         
         await Promise.all([
-            ...productOrders.map(productOrder => {
-                return dependencies.db.models.storeProduct.decrement({amount: productOrder.amount}, {
+            ...shoppingCart.shoppingCartProducts.map(shoppingCartProduct => {
+                return dependencies.db.models.storeProduct.decrement({amount: shoppingCartProduct.amount}, {
                     where: {
-                        productBarcode: productOrder.productBarcode,
-                        // TODO: Also the particular store
+                        productBarcode: shoppingCartProduct.storeProduct.product.barcode,
+                        storePlace: shoppingCartProduct.storeProduct.storePlace,
                     },
                     transaction,
                 });
