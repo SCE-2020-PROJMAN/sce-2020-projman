@@ -10,7 +10,7 @@ async function create(requestingUser, barcode, category, freeText, price, brand,
     }
 
     // We don't covert `barcode` to Number globally because they can start with 0
-    if (!validationUtil.isNumber(Number(barcode))) {
+    if (barcode === '' || !validationUtil.isNumber(Number(barcode))) {
         return controllerResponse(true, 400, 'validation/barcode');
     }
     if (!validationUtil.isString(category)) {
@@ -65,7 +65,7 @@ async function edit(requestingUser, barcode, category, freeText, price, brand, n
     }
 
     // We don't covert `barcode` to Number globally because they can start with 0
-    if (!validationUtil.isNumber(Number(barcode))) {
+    if (barcode === '' || !validationUtil.isNumber(Number(barcode))) {
         return controllerResponse(true, 400, 'validation/barcode');
     }
     if (validationUtil.exists(category) && !validationUtil.isString(category)) {
@@ -194,7 +194,7 @@ async function destroy(requestingUser, barcode, dependencies = null) {
     }
 
     // We don't covert `barcode` to Number globally because they can start with 0
-    if (!validationUtil.isNumber(Number(barcode))) {
+    if (barcode === '' || !validationUtil.isNumber(Number(barcode))) {
         return controllerResponse(true, 400, 'validation/barcode');
     }
 
@@ -232,7 +232,7 @@ async function setImages(requestingUser, barcode, imageUrls, dependencies = null
     }
 
     // We don't covert `barcode` to Number globally because they can start with 0
-    if (!validationUtil.isNumber(Number(barcode))) {
+    if (barcode === '' || !validationUtil.isNumber(Number(barcode))) {
         return controllerResponse(true, 400, 'validation/barcode');
     }
     if (!validationUtil.exists(imageUrls)) {
