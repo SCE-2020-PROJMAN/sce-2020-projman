@@ -154,11 +154,12 @@ class ProductComponent extends React.Component {
                                 onClick={this.onSave}
                                 iconProps={{iconName: 'save'}}
                             />
-                            <PrimaryButton
-                                text="Delete"
-                                onClick={this.props.onDeleteProduct}
-                                // iconProps={{iconName: 'save'}}
-                            />
+                            {this.props.onDeleteProduct && (
+                                <DefaultButton
+                                    text="Delete"
+                                    onClick={this.props.onDeleteProduct}
+                                />
+                            )}
                         </Stack>
                     </div>
                 </div>
