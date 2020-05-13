@@ -49,14 +49,14 @@ describe('order controller', () => {
                                 customer: {
                                     isStudent: false,
                                 },
-                                productOrder: {
+                                productOrders: [{
                                     amount: 2,
                                     product: {
                                         price: 10,
                                         studentDiscount: 0,
                                         category: 'category',
                                     },
-                                },
+                                }],
                             }],
                         },
                     },
@@ -82,14 +82,14 @@ describe('order controller', () => {
                                 customer: {
                                     isStudent: true,
                                 },
-                                productOrder: {
+                                productOrders: [{
                                     amount: 2,
                                     product: {
                                         price: 10,
                                         studentDiscount: 5,
                                         category: category,
                                     },
-                                },
+                                }],
                             }],
                         },
                     },
@@ -115,14 +115,14 @@ describe('order controller', () => {
                                 customer: {
                                     isStudent: false,
                                 },
-                                productOrder: {
+                                productOrders: [{
                                     amount: 10,
                                     product: {
                                         price: 3,
                                         studentDiscount: 0,
                                         category: 'category',
                                     },
-                                },
+                                }],
                             }],
                         },
                     },
