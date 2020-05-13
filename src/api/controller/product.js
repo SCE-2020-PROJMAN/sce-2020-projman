@@ -100,14 +100,17 @@ async function edit(requestingUser, barcode, category, freeText, price, brand, n
     addIfExists('brand', brand);
     addIfExists('name', name);
     addIfExists('studentDiscount', studentDiscount);
-    const [updatedRowsCount] = await dependencies.db.models.product.update(delta, {
-        where: {
-            barcode: barcode,
-        },
-    });
-
-    if (updatedRowsCount === 0) {
-        return controllerResponse(true, 404, 'existence/barcode');
+    
+    if (Object.keys(delta).length !== 0) {
+        const [updatedRowsCount] = await dependencies.db.models.product.update(delta, {
+            where: {
+                barcode: barcode,
+            },
+        });
+    
+        if (updatedRowsCount === 0) {
+            return controllerResponse(true, 404, 'existence/barcode');
+        }
     }
 
     return controllerResponse(false, 200);
