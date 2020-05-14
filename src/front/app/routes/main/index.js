@@ -304,10 +304,13 @@ class MainRoute extends React.Component {
                                 <DefaultButton href="#/admin">Admin Panel</DefaultButton>
                             )}
                             {this.state.isCustomer && (
-                                <DefaultButton
-                                    onClick={() => this.setState(prevState => ({ ...prevState, shoppingCartIsOpen: true }))}
-                                    iconProps={{ iconName: 'shoppingCart' }}
-                                />
+                                <React.Fragment>
+                                    <DefaultButton href="#/personalDetails">Personal Details</DefaultButton>
+                                    <DefaultButton
+                                        onClick={() => this.setState(prevState => ({ ...prevState, shoppingCartIsOpen: true }))}
+                                        iconProps={{ iconName: 'shoppingCart' }}
+                                    />
+                                </React.Fragment>
                             )}
                             <DefaultButton
                                 text="Log Out"
