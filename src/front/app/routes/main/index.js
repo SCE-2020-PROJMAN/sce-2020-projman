@@ -60,6 +60,7 @@ class MainRoute extends React.Component {
     logout(){
         sessionStorage.removeItem('authToken');
         this.props.history.push('/login');
+        window.location.reload();
     }
 
     openAddToCartDialog(barcode) {
