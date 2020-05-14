@@ -19,7 +19,7 @@ router.post('/', authenticatedMiddleware(), asyncWrapper(async (req, res) => {
     res.status(controllerResponse.status).send(controllerResponse.body);
 }));
 
-router.delete('/', authenticatedMiddleware, asyncWrapper(async (req, res) => {
+router.delete('/', authenticatedMiddleware(), asyncWrapper(async (req, res) => {
     const controllerResponse = await orderController.destroy(
         req.requestingUser,
         req.body.orderCreationTime,
