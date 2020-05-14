@@ -242,19 +242,35 @@ class MainRoute extends React.Component {
         return amount => {
             apiCall('patch', `store/${this.state.selectedStore}/product/${barcode}`, { amount: amount })
                 .then(() => {
-                    const index = this.state.products.findIndex(product => barcode === product.barcode);
-                    if (index !== -1) {
-                        const storeProduct = this.state.products[index].storeProducts.find(product => product.storePlace === this.state.selectedStore);
-                        const changedStoreProduct = { ...storeProduct, amount: amount };
-                        this.setState(prevState => ({
+                    this.setState(prevState => {
+                        const productIndex = prevState.products.findIndex(product => barcode === product.barcode);
+                        if (productIndex === -1) {
+                            return prevState;
+                        }
+                        const oldProduct = prevState.products[productIndex];
+                        const storeProductIndex = oldProduct.storeProducts.findIndex(product => product.storePlace === prevState.selectedStore);
+                        if (storeProductIndex === -1) {
+                            return prevState;
+                        }
+                        return {
                             ...prevState,
                             products: [
-                                ...prevState.products.slice(0, index),
-                                { ...prevState.products[index], storeProducts: [...prevState.products[index].storeProducts, changedStoreProduct] },
-                                ...prevState.products.slice(index + 1),
+                                ...prevState.products.slice(0, productIndex),
+                                {
+                                    ...oldProduct,
+                                    storeProducts: [
+                                        ...oldProduct.storeProducts.slice(0, storeProductIndex),
+                                        {
+                                            ...oldProduct.storeProducts[storeProductIndex],
+                                            amount: Number(amount),
+                                        },
+                                        ...oldProduct.storeProducts.slice(storeProductIndex + 1),
+                                    ],
+                                },
+                                ...prevState.products.slice(productIndex + 1),
                             ],
-                        }));
-                    }
+                        };
+                    });
                 });
         };
     }
