@@ -42,7 +42,7 @@ async function setAddresses(userEmail, addresses, dependencies = []) {
             validationUtil.isString(address.city) &&
             validationUtil.isString(address.street) &&
             validationUtil.isString(address.house) &&
-            validationUtil.isString(address.apartment)
+            (!validationUtil.exists(address.apartment) || validationUtil.isString(address.apartment))
         );
     })) {
         return controllerResponse(true, 400, 'validation/addresses');
