@@ -227,6 +227,7 @@ class AdminRoute extends React.Component {
                             </p>
                         )}
                         <HorizontalBar
+                            height={64}
                             data={{
                                 labels: Object.keys(this.state.analytics.revenue.perDayOfWeek || {}).map(day => util.capitalize(day)),
                                 datasets: [{
