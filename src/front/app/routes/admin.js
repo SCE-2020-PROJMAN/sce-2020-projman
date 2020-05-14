@@ -1,6 +1,6 @@
 import React from 'react';
 import propTypes from 'prop-types';
-import {Spinner, SpinnerSize, MessageBar, MessageBarType, DetailsList, FontIcon, SelectionMode, DetailsListLayoutMode, ActionButton} from 'office-ui-fabric-react';
+import {Spinner, SpinnerSize, MessageBar, MessageBarType, DetailsList, FontIcon, SelectionMode, DetailsListLayoutMode, ActionButton, Pivot, PivotItem} from 'office-ui-fabric-react';
 import {HorizontalBar} from 'react-chartjs-2';
 import apiCall from '../apiCall';
 import addressUtil from '../../../util/address';
@@ -138,106 +138,109 @@ class AdminRoute extends React.Component {
             <React.Fragment>
                 <h1>Admin</h1>
 
-                <h2>Orders</h2>
-                <DetailsList
-                    compact={true}
-                    selectionMode={SelectionMode.none}
-                    layoutMode={DetailsListLayoutMode.justified}
-                    isHeaderVisible={true}
-                    items={this.state.orders.map(order => ({
-                        ...order,
-                        creationTimeStr: (new Date(order.creationTime)).toLocaleDateString(),
-                        shippingTimeStr: (new Date(order.shippingTime)).toLocaleDateString(),
-                        customerEmail: getCustomerStr(order.customer),
-                        address: addressUtil.getText(order.shippingAddress),
-                        productCount: order.products.length,
-                        key: order.creationTime + order.customer.email,
-                    }))}
-                    columns={[{
-                        key: 'isLate',
-                        name: 'Late?',
-                        fieldName: 'isLate',
-                        minWidth: 64,
-                        maxWidth: 64,
-                        onRender: item => <FontIcon iconName={item.isLate ? 'check' : 'times'} style={{color: item.isLate ? 'red' : 'green'}}/>,
-                    }, {
-                        key: 'isDone',
-                        name: 'Delivered?',
-                        iconName: 'truck',
-                        fieldName: 'isDone',
-                        isIconOnly: true,
-                        minWidth: 64,
-                        maxWidth: 64,
-                        onRender: item => <FontIcon iconName={item.isDone ? 'check' : 'times'} style={{color: item.isDone ? 'green' : 'red'}}/>,
-                    }, {
-                        key: 'creationTime',
-                        name: 'Creation Time',
-                        fieldName: 'creationTimeStr',
-                        minWidth: 128,
-                        maxWidth: 128,
-                    }, {
-                        key: 'shippingTime',
-                        name: 'Shipping Time',
-                        fieldName: 'shippingTimeStr',
-                        minWidth: 128,
-                        maxWidth: 128,
-                    }, {
-                        key: 'productCount',
-                        name: 'Product Count',
-                        fieldName: 'productCount',
-                        minWidth: 96,
-                        maxWidth: 96,
-                    }, {
-                        key: 'revenue',
-                        name: 'Revenue',
-                        iconName: 'shekel',
-                        fieldName: 'revenue',
-                        minWidth: 96,
-                        maxWidth: 96,
-                    }, {
-                        key: 'customer',
-                        name: 'Customer',
-                        iconName: 'user',
-                        fieldName: 'customerEmail',
-                        minWidth: 256,
-                    }, {
-                        key: 'address',
-                        name: 'Address',
-                        fieldName: 'address',
-                        minWidth: 256,
-                    }, {
-                        key: 'complete',
-                        name: '',
-                        onRender: order => (
-                            order.isDone ? (
-                                <React.Fragment></React.Fragment>
-                            ) : (
-                                <ActionButton iconProps={{iconName: 'truck'}} onClick={this.deliverOrder(order)} disabled={this.state.editingOrder}>Deliver</ActionButton>
-                            )
-                        ),
-                    }]}
-                />
-
-                <h2>Analytics</h2>
-                <p>Total revenue: {this.state.analytics.revenue.total}</p>
-                {Object.keys(this.state.analytics.revenue.perCategory || {}).map(categoryName =>
-                    <p key={categoryName}>
-                        Revenue ({categoryName} category): {this.state.analytics.revenue.perCategory[categoryName]}
-                    </p>
-                )}
-                <HorizontalBar
-                    data={{
-                        labels: Object.keys(this.state.analytics.revenue.perDayOfWeek || {}).map(day => util.capitalize(day)),
-                        datasets: [{
-                            label: 'Revenue',
-                            backgroundColor: '#2e9636',
-                            data: Object.values(this.state.analytics.revenue.perDayOfWeek || {}),
-                        }],
-                    }}
-                    options={{
-                        legend: {display: false},
-                    }}
-                />
+                <Pivot>
+                    <PivotItem headerText="Orders">
+                        <DetailsList
+                            compact={true}
+                            selectionMode={SelectionMode.none}
+                            layoutMode={DetailsListLayoutMode.justified}
+                            isHeaderVisible={true}
+                            items={this.state.orders.map(order => ({
+                                ...order,
+                                creationTimeStr: (new Date(order.creationTime)).toLocaleDateString(),
+                                shippingTimeStr: (new Date(order.shippingTime)).toLocaleDateString(),
+                                customerEmail: getCustomerStr(order.customer),
+                                address: addressUtil.getText(order.shippingAddress),
+                                productCount: order.products.length,
+                                key: order.creationTime + order.customer.email,
+                            }))}
+                            columns={[{
+                                key: 'isLate',
+                                name: 'Late?',
+                                fieldName: 'isLate',
+                                minWidth: 64,
+                                maxWidth: 64,
+                                onRender: item => <FontIcon iconName={item.isLate ? 'check' : 'times'} style={{color: item.isLate ? 'red' : 'green'}}/>,
+                            }, {
+                                key: 'isDone',
+                                name: 'Delivered?',
+                                iconName: 'truck',
+                                fieldName: 'isDone',
+                                isIconOnly: true,
+                                minWidth: 64,
+                                maxWidth: 64,
+                                onRender: item => <FontIcon iconName={item.isDone ? 'check' : 'times'} style={{color: item.isDone ? 'green' : 'red'}}/>,
+                            }, {
+                                key: 'creationTime',
+                                name: 'Creation Time',
+                                fieldName: 'creationTimeStr',
+                                minWidth: 128,
+                                maxWidth: 128,
+                            }, {
+                                key: 'shippingTime',
+                                name: 'Shipping Time',
+                                fieldName: 'shippingTimeStr',
+                                minWidth: 128,
+                                maxWidth: 128,
+                            }, {
+                                key: 'productCount',
+                                name: 'Product Count',
+                                fieldName: 'productCount',
+                                minWidth: 96,
+                                maxWidth: 96,
+                            }, {
+                                key: 'revenue',
+                                name: 'Revenue',
+                                iconName: 'shekel',
+                                fieldName: 'revenue',
+                                minWidth: 96,
+                                maxWidth: 96,
+                            }, {
+                                key: 'customer',
+                                name: 'Customer',
+                                iconName: 'user',
+                                fieldName: 'customerEmail',
+                                minWidth: 256,
+                            }, {
+                                key: 'address',
+                                name: 'Address',
+                                fieldName: 'address',
+                                minWidth: 256,
+                            }, {
+                                key: 'complete',
+                                name: '',
+                                onRender: order => (
+                                    order.isDone ? (
+                                        <React.Fragment></React.Fragment>
+                                    ) : (
+                                        <ActionButton iconProps={{iconName: 'truck'}} onClick={this.deliverOrder(order)} disabled={this.state.editingOrder}>Deliver</ActionButton>
+                                    )
+                                ),
+                            }]}
+                        />
+                    </PivotItem>
+                    <PivotItem headerText="Analytics">
+                        <p>Total revenue: {this.state.analytics.revenue.total}</p>
+                        {Object.keys(this.state.analytics.revenue.perCategory || {}).map(categoryName =>
+                            <p key={categoryName}>
+                                Revenue ({categoryName} category): {this.state.analytics.revenue.perCategory[categoryName]}
+                            </p>
+                        )}
+                        <HorizontalBar
+                            data={{
+                                labels: Object.keys(this.state.analytics.revenue.perDayOfWeek || {}).map(day => util.capitalize(day)),
+                                datasets: [{
+                                    label: 'Revenue',
+                                    backgroundColor: '#2e9636',
+                                    data: Object.values(this.state.analytics.revenue.perDayOfWeek || {}),
+                                }],
+                            }}
+                            options={{
+                                legend: {display: false},
+                            }}
+                        />
+                    </PivotItem>
+                </Pivot>
             </React.Fragment>
         );
     }
