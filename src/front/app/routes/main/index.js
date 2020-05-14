@@ -300,10 +300,15 @@ class MainRoute extends React.Component {
                         <h2>Welcome to {util.capitalize(this.state.selectedStore)}</h2>
 
                         <Stack horizontal style={{ position: 'absolute', top: '0', right: '0' }}>
-                            <DefaultButton
-                                onClick={() => this.setState(prevState => ({ ...prevState, shoppingCartIsOpen: true }))}
-                                iconProps={{ iconName: 'shoppingCart' }}
-                            />
+                            {this.state.isAdmin && (
+                                <DefaultButton href="#/admin">Admin Panel</DefaultButton>
+                            )}
+                            {this.state.isCustomer && (
+                                <DefaultButton
+                                    onClick={() => this.setState(prevState => ({ ...prevState, shoppingCartIsOpen: true }))}
+                                    iconProps={{ iconName: 'shoppingCart' }}
+                                />
+                            )}
                             <DefaultButton
                                 text="Log Out"
                                 type="button"
