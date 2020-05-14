@@ -13,6 +13,7 @@ class Orders extends React.Component {
             loading: false,
             error: false,
             editingOrder: false,
+            deletingOrder: false,
             orders: [],
         };
     }
@@ -79,6 +80,43 @@ class Orders extends React.Component {
                     this.setState(prevState => ({
                         ...prevState,
                         editingOrder: false,
+                    }));
+                });
+        };
+    }
+
+    deleteOrder(order) {
+        return () => {
+            this.setState(prevState => ({
+                ...prevState,
+                deletingOrder: true,
+            }));
+            apiCall('delete', 'order', {
+                orderCreationTime: order.creationTime,
+                orderCustomerEmail: order.customer.email,
+            })
+                .then(() => {
+                    this.setState(prevState => {
+                        const index = prevState.orders.findIndex(order2 => ((order.creationTime === order2.creationTime) && (order.customer.email === order2.customer.email)));
+                        if (index === -1) {
+                            return prevState;
+                        }
+                        return {
+                            ...prevState,
+                            orders: [
+                                ...prevState.orders.slice(0, index),
+                                ...prevState.orders.slice(index + 1),
+                            ],
+                        };
+                    });
+                })
+                .catch(err => {
+                    console.error(err);
+                })
+                .finally(() => {
+                    this.setState(prevState => ({
+                        ...prevState,
+                        deletingOrder: false,
                     }));
                 });
         };
@@ -184,6 +222,16 @@ class Orders extends React.Component {
                             <React.Fragment></React.Fragment>
                         ) : (
                             <ActionButton iconProps={{iconName: 'truck'}} onClick={this.deliverOrder(order)} disabled={this.state.editingOrder}>Deliver</ActionButton>
+                        )
+                    ),
+                }, {
+                    key: 'delete',
+                    name: '',
+                    onRender: order => (
+                        order.isDone ? (
+                            <React.Fragment></React.Fragment>
+                        ) : (
+                            <ActionButton iconProps={{iconName: 'trash', style: {color: 'red'}}} onClick={this.deleteOrder(order)} disabled={this.state.deletingOrder} style={{color: 'red'}}>Delete</ActionButton>
                         )
                     ),
                 }]}

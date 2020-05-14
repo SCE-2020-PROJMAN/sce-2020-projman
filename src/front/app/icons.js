@@ -22,6 +22,7 @@ import {
     faCheck,
     faTruck,
     faUser,
+    faTrash,
 } from '@fortawesome/free-solid-svg-icons';
 
 const iconMap = {
@@ -47,6 +48,7 @@ const iconMap = {
     truck: faTruck,
     user: faUser,
     checkmark: faCheck,
+    trash: faTrash,
 };
 
 function initialize() {
