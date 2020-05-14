@@ -13,6 +13,7 @@ class MainRoute extends React.Component {
     constructor(props) {
         super(props);
 
+        this.logout = this.logout.bind(this);
         this.openAddToCartDialog = this.openAddToCartDialog.bind(this);
         this.addToCart = this.addToCart.bind(this);
         this.selectStore = this.selectStore.bind(this);
@@ -23,7 +24,6 @@ class MainRoute extends React.Component {
         this.addProduct = this.addProduct.bind(this);
         this.onDeleteProduct = this.onDeleteProduct.bind(this);
         this.onChangeAmount = this.onChangeAmount.bind(this);
-        this.logout = this.logout.bind(this);
         this.state = {
             page: 0,
             pages: 0,
@@ -41,11 +41,7 @@ class MainRoute extends React.Component {
             shoppingCartIsOpen: false,
         };
     }
-    logout(){
-        sessionStorage.removeItem('authToken');
-        this.props.history.push('/login');
-        
-    }
+    
     componentDidMount() {
         apiCall('get', 'auth/who-am-i')
             .then(res => {
@@ -59,6 +55,11 @@ class MainRoute extends React.Component {
             .catch(err => {
                 console.error(err);
             });
+    }
+
+    logout(){
+        sessionStorage.removeItem('authToken');
+        this.props.history.push('/login');
     }
 
     openAddToCartDialog(barcode) {
@@ -298,17 +299,18 @@ class MainRoute extends React.Component {
                     <React.Fragment>
                         <h2>Welcome to {util.capitalize(this.state.selectedStore)}</h2>
 
-                        <DefaultButton
-                            style={{ position: 'absolute', top: '0', right: '0' }}
-                            onClick={() => this.setState(prevState => ({ ...prevState, shoppingCartIsOpen: true }))}
-                            iconProps={{ iconName: 'shoppingCart' }}
-                        />
-                        <DefaultButton
-                            style={{ position: 'absolute', top: '0', right: '100px' }}
-                            text="Log Out"
-                            type="button"
-                            onClick={this.logout}
-                        />
+                        <Stack horizontal style={{ position: 'absolute', top: '0', right: '0' }}>
+                            <DefaultButton
+                                onClick={() => this.setState(prevState => ({ ...prevState, shoppingCartIsOpen: true }))}
+                                iconProps={{ iconName: 'shoppingCart' }}
+                            />
+                            <DefaultButton
+                                text="Log Out"
+                                type="button"
+                                onClick={this.logout}
+                            />
+                        </Stack>
+
                         {this.state.isAdmin && (
                             <CreateProduct
                                 store={this.state.selectedStore}
