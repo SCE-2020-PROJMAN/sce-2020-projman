@@ -386,7 +386,7 @@ class MainRoute extends React.Component {
                                             isAvailable={isAvailable(product)}
                                             isStudent={this.state.isStudent}
                                             isEditable={this.state.isAdmin}
-                                            onAddToCart={this.openAddToCartDialog(product.barcode)}
+                                            onAddToCart={this.state.isCustomer ? this.openAddToCartDialog(product.barcode) : null}
                                             onEdit={this.handleEditProduct(product.barcode)}
                                             onDeleteProduct={this.onDeleteProduct(product.barcode)}
                                             onChangeAmount={this.onChangeAmount(product.barcode)}
