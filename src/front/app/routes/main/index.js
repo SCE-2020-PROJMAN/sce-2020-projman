@@ -200,7 +200,13 @@ class MainRoute extends React.Component {
                     ...prevState.products.slice(index + 1),
                 ],
             }));
-            apiCall('patch', `product/${product.barcode}`, productDelta)
+            const promises = [apiCall('patch', `product/${product.barcode}`, productDelta)];
+            const imageUrls = productDelta.imageUrls;
+            if (imageUrls) {
+                promises.push(apiCall('post', `product/${product.barcode}/image`, {imageUrls: imageUrls}));
+                delete productDelta.imageUrls;
+            }
+            Promise.all(promises)
                 .then(() => {
                     const index = this.state.products.findIndex(product => barcode === product.barcode);
                     this.setState(prevState => ({
@@ -211,6 +217,9 @@ class MainRoute extends React.Component {
                                 ...prevState.products[index],
                                 isPatching: false,
                                 ...productDelta,
+                                images: imageUrls ? imageUrls.map(url => ({
+                                    url: url,
+                                })) : prevState.products[index].images,
                             },
                             ...prevState.products.slice(index + 1),
                         ],

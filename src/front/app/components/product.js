@@ -1,6 +1,6 @@
 import React from 'react';
 import propTypes from 'prop-types';
-import {FontIcon, DefaultButton, PrimaryButton, IconButton, TextField, Stack, Shimmer} from 'office-ui-fabric-react';
+import {FontIcon, DefaultButton, PrimaryButton, IconButton, ActionButton, TextField, Stack, Shimmer} from 'office-ui-fabric-react';
 import ImageGallery from './imageGallery';
 import Barcode from './barcode';
 
@@ -11,6 +11,9 @@ class ProductComponent extends React.Component {
         this.toggleEdit = this.toggleEdit.bind(this);
         this.onSave = this.onSave.bind(this);
         this.handleEdit = this.handleEdit.bind(this);
+        this.handleAddImageUrl = this.handleAddImageUrl.bind(this);
+        this.handleEditImageUrl = this.handleEditImageUrl.bind(this);
+        this.handleDeleteImageUrl = this.handleDeleteImageUrl.bind(this);
 
         this.state = {
             isEditing: false,
@@ -22,8 +25,21 @@ class ProductComponent extends React.Component {
                 price: '',
                 studentDiscount: '',
                 amount: '',
+                imageUrls: props.imageUrls ? [...props.imageUrls] : [],
             },
         };
+    }
+
+    componentDidUpdate(prevProps) {
+        if (prevProps.imageUrls !== this.props.imageUrls) {
+            this.setState(prevState => ({
+                ...prevState,
+                editted: {
+                    ...prevState.editted,
+                    imageUrls: [...this.props.imageUrls],
+                },
+            }));
+        }
     }
 
     toggleEdit() {
@@ -49,6 +65,9 @@ class ProductComponent extends React.Component {
         addIfChanged('freeText', this.state.editted.freeText);
         addIfChanged('price', this.state.editted.price);
         addIfChanged('studentDiscount', this.state.editted.studentDiscount);
+        if (JSON.stringify(this.state.editted.imageUrls) !== JSON.stringify(this.props.imageUrls)) {
+            delta.imageUrls = this.state.editted.imageUrls;
+        }
 
         if (this.state.amount !== '' && this.props.onChangeAmount) {
             this.props.onChangeAmount(this.state.editted.amount);
@@ -72,6 +91,16 @@ class ProductComponent extends React.Component {
         }));
     }
 
+    handleAddImageUrl() {
+        this.setState(prevState => ({
+            ...prevState,
+            editted: {
+                ...prevState.editted,
+                imageUrls: ['', ...prevState.editted.imageUrls],
+            },
+        }));
+    }
+
     handleEdit(key) {
         return (e, val) => {
             this.setState(prevState => ({
@@ -79,6 +108,37 @@ class ProductComponent extends React.Component {
                 editted: {
                     ...prevState.editted,
                     [key]: val,
+                },
+            }));
+        };
+    }
+
+    handleEditImageUrl(index) {
+        return (e, val) => {
+            this.setState(prevState => ({
+                ...prevState,
+                editted: {
+                    ...prevState.editted,
+                    imageUrls: [
+                        ...prevState.editted.imageUrls.slice(0, index),
+                        val,
+                        ...prevState.editted.imageUrls.slice(index + 1),
+                    ],
+                },
+            }));
+        };
+    }
+
+    handleDeleteImageUrl(index) {
+        return () => {
+            this.setState(prevState => ({
+                ...prevState,
+                editted: {
+                    ...prevState.editted,
+                    imageUrls: [
+                        ...prevState.editted.imageUrls.slice(0, index),
+                        ...prevState.editted.imageUrls.slice(index + 1),
+                    ],
                 },
             }));
         };
@@ -112,6 +172,32 @@ class ProductComponent extends React.Component {
                         </div>
                     </div>
                     <div className="body">
+                        {this.props.imageUrls !== undefined && (
+                            <React.Fragment>
+                                <ActionButton
+                                    iconProps={{iconName: 'plus'}}
+                                    onClick={this.handleAddImageUrl}
+                                >
+                                    Add image
+                                </ActionButton>
+                                {this.state.editted.imageUrls.map((url, index) =>
+                                    <Stack horizontal key={index} style={{alignItems: 'flex-end'}}>
+                                        <Stack.Item grow={1}>
+                                            <TextField
+                                                label="URL"
+                                                value={url}
+                                                onChange={this.handleEditImageUrl(index)}
+                                            />
+                                        </Stack.Item>
+                                        <IconButton
+                                            iconProps={{iconName: 'cancel'}}
+                                            onClick={this.handleDeleteImageUrl(index)}
+                                            style={{color: 'red'}}
+                                        />
+                                    </Stack>
+                                )}
+                            </React.Fragment>
+                        )}
                         <div className="description">
                             <TextField
                                 label="Description"
