@@ -1,6 +1,6 @@
 import React from 'react';
 import propTypes from 'prop-types';
-import {Spinner, SpinnerSize, MessageBar, MessageBarType, DetailsList, FontIcon, SelectionMode, DetailsListLayoutMode} from 'office-ui-fabric-react';
+import {Spinner, SpinnerSize, MessageBar, MessageBarType, DetailsList, FontIcon, SelectionMode, DetailsListLayoutMode, ActionButton} from 'office-ui-fabric-react';
 import {HorizontalBar} from 'react-chartjs-2';
 import apiCall from '../apiCall';
 import addressUtil from '../../../util/address';
@@ -10,9 +10,12 @@ class AdminRoute extends React.Component {
     constructor(props) {
         super(props);
 
+        this.deliverOrder = this.deliverOrder.bind(this);
+
         this.state = {
             loading: false,
             error: false,
+            editingOrder: false,
             orders: [],
             analytics: {
                 revenue: {
@@ -67,6 +70,45 @@ class AdminRoute extends React.Component {
             });
     }
 
+    deliverOrder(order) {
+        return () => {
+            this.setState(prevState => ({
+                ...prevState,
+                editingOrder: true,
+            }));
+            apiCall('patch', 'order', {
+                orderCreationTime: order.creationTime,
+                orderCustomerEmail: order.customer.email,
+                isDone: true,
+            })
+                .then(() => {
+                    this.setState(prevState => {
+                        const index = prevState.orders.findIndex(order2 => ((order.creationTime === order2.creationTime) && (order.customer.email === order2.customer.email)));
+                        if (index === -1) {
+                            return prevState;
+                        }
+                        return {
+                            ...prevState,
+                            orders: [
+                                ...prevState.orders.slice(0, index),
+                                { ...prevState.orders[index], isDone: true, isLate: false },
+                                ...prevState.orders.slice(index + 1),
+                            ],
+                        };
+                    });
+                })
+                .catch(err => {
+                    console.error(err);
+                })
+                .finally(() => {
+                    this.setState(prevState => ({
+                        ...prevState,
+                        editingOrder: false,
+                    }));
+                });
+        };
+    }
+
     render() {
         if (this.state.loading) {
             return <Spinner
@@ -82,6 +124,9 @@ class AdminRoute extends React.Component {
         }
 
         function getCustomerStr(customer) {
+            if (!customer) {
+                return '';
+            }
             let str = customer.email;
             if (customer.isStudent) {
                 str += ' (s)';
@@ -101,9 +146,9 @@ class AdminRoute extends React.Component {
                     isHeaderVisible={true}
                     items={this.state.orders.map(order => ({
                         ...order,
-                        creationTime: (new Date(order.creationTime)).toLocaleDateString(),
-                        shippingTime: (new Date(order.shippingTime)).toLocaleDateString(),
-                        customer: getCustomerStr(order.customer),
+                        creationTimeStr: (new Date(order.creationTime)).toLocaleDateString(),
+                        shippingTimeStr: (new Date(order.shippingTime)).toLocaleDateString(),
+                        customerEmail: getCustomerStr(order.customer),
                         address: addressUtil.getText(order.shippingAddress),
                         productCount: order.products.length,
                         key: order.creationTime + order.customer.email,
@@ -127,13 +172,13 @@ class AdminRoute extends React.Component {
                     }, {
                         key: 'creationTime',
                         name: 'Creation Time',
-                        fieldName: 'creationTime',
+                        fieldName: 'creationTimeStr',
                         minWidth: 128,
                         maxWidth: 128,
                     }, {
                         key: 'shippingTime',
                         name: 'Shipping Time',
-                        fieldName: 'shippingTime',
+                        fieldName: 'shippingTimeStr',
                         minWidth: 128,
                         maxWidth: 128,
                     }, {
@@ -153,13 +198,23 @@ class AdminRoute extends React.Component {
                         key: 'customer',
                         name: 'Customer',
                         iconName: 'user',
-                        fieldName: 'customer',
+                        fieldName: 'customerEmail',
                         minWidth: 256,
                     }, {
                         key: 'address',
                         name: 'Address',
                         fieldName: 'address',
                         minWidth: 256,
+                    }, {
+                        key: 'complete',
+                        name: '',
+                        onRender: order => (
+                            order.isDone ? (
+                                <React.Fragment></React.Fragment>
+                            ) : (
+                                <ActionButton iconProps={{iconName: 'truck'}} onClick={this.deliverOrder(order)} disabled={this.state.editingOrder}>Deliver</ActionButton>
+                            )
+                        ),
                     }]}
                 />
 

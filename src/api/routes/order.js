@@ -28,6 +28,16 @@ router.delete('/', authenticatedMiddleware(), asyncWrapper(async (req, res) => {
     res.status(controllerResponse.status).send(controllerResponse.body);
 }));
 
+router.patch('/', authenticatedMiddleware(), asyncWrapper(async (req, res) => {
+    const controllerResponse = await orderController.edit(
+        req.requestingUser,
+        req.body.orderCreationTime,
+        req.body.orderCustomerEmail,
+        req.body.isDone,
+    );
+    res.status(controllerResponse.status).send(controllerResponse.body);
+}));
+
 router.get('/analytics', authenticatedMiddleware(), asyncWrapper(async (req, res) => {
     const controllerResponse = await orderController.calculateAnalytics(req.requestingUser);
     res.status(controllerResponse.status).send(controllerResponse.body);

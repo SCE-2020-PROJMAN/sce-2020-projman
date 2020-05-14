@@ -204,6 +204,59 @@ async function destroy(requestingUser, orderCreationTime, orderCustomerEmail, de
     return controllerResponse(false, 200);
 }
 
+async function edit(requestingUser, orderCreationTime, orderCustomerEmail, isDone, dependencies = null) {
+    dependencies = dependencyInjector(['db'], dependencies);
+
+    if (!requestingUser || !requestingUser.admin) {
+        return controllerResponse(true, 403);
+    }
+
+    if (!validationUtil.exists(orderCreationTime)) {
+        return controllerResponse(true, 400, 'validation/orderCreationTime');
+    }
+    
+    if (!validationUtil.isEmail(orderCustomerEmail)) {
+        return controllerResponse(true, 400, 'validation/orderCustomerEmail');
+    }
+
+    if (validationUtil.exists(isDone) && !validationUtil.isBool(isDone)) {
+        return controllerResponse(true, 400, 'validation/isDone');
+    }
+
+    const customer = await dependencies.db.models.customer.findOne({
+        where: {
+            userEmail: orderCustomerEmail,
+        },
+    });
+    if (!customer) {
+        return controllerResponse(true, 404, 'existence/customer');
+    }
+
+    const delta = {};
+    const addIfExists = (key, val) => {
+        if (validationUtil.exists(val)) {
+            delta[key] = val;
+        }
+    };
+    addIfExists('isDone', isDone);
+    
+    if (Object.keys(delta).length !== 0) {
+        const [updatedRowsCount] = await dependencies.db.models.order.update(delta, {
+            where: {
+                creationTime: orderCreationTime,
+                customerId: customer.id,
+                isDone: false, // can only edit orders that aren't done
+            },
+        });
+
+        if (updatedRowsCount === 0) {
+            return controllerResponse(true, 404, 'existence/order');
+        }
+    }
+
+    return controllerResponse(false, 200);
+}
+
 async function calculateAnalytics(requestingUser, dependencies = null) {
     dependencies = dependencyInjector(['db'], dependencies);
 
@@ -279,5 +332,6 @@ export default {
     getAll,
     create,
     destroy,
+    edit,
     calculateAnalytics,
 };
