@@ -1,6 +1,6 @@
 import React from 'react';
 import propTypes from 'prop-types';
-import {MessageBar, MessageBarType, Spinner, SpinnerSize, TextField, Stack, PrimaryButton, DefaultButton, ComboBox, Modal, IconButton, Panel} from 'office-ui-fabric-react';
+import { MessageBar, MessageBarType, Spinner, SpinnerSize, TextField, Stack, PrimaryButton, DefaultButton, ComboBox, Modal, IconButton, Panel } from 'office-ui-fabric-react';
 import StoreSelect from '../../components/storeSelect';
 import Product from '../../components/product';
 import Paginator from '../../components/paginator';
@@ -23,7 +23,7 @@ class MainRoute extends React.Component {
         this.addProduct = this.addProduct.bind(this);
         this.onDeleteProduct = this.onDeleteProduct.bind(this);
         this.onChangeAmount = this.onChangeAmount.bind(this);
-
+        this.logout = this.logout.bind(this);
         this.state = {
             page: 0,
             pages: 0,
@@ -41,7 +41,11 @@ class MainRoute extends React.Component {
             shoppingCartIsOpen: false,
         };
     }
-
+    logout(){
+        sessionStorage.removeItem('authToken');
+        this.props.history.push('/login');
+        
+    }
     componentDidMount() {
         apiCall('get', 'auth/who-am-i')
             .then(res => {
@@ -227,17 +231,17 @@ class MainRoute extends React.Component {
 
     onChangeAmount(barcode) {
         return amount => {
-            apiCall('patch', `store/${this.state.selectedStore}/product/${barcode}`, {amount: amount})
+            apiCall('patch', `store/${this.state.selectedStore}/product/${barcode}`, { amount: amount })
                 .then(() => {
                     const index = this.state.products.findIndex(product => barcode === product.barcode);
                     if (index !== -1) {
                         const storeProduct = this.state.products[index].storeProducts.find(product => product.storePlace === this.state.selectedStore);
-                        const changedStoreProduct = {...storeProduct, amount: amount};
+                        const changedStoreProduct = { ...storeProduct, amount: amount };
                         this.setState(prevState => ({
                             ...prevState,
                             products: [
                                 ...prevState.products.slice(0, index),
-                                { ...prevState.products[index],  storeProducts: [...prevState.products[index].storeProducts, changedStoreProduct]},
+                                { ...prevState.products[index], storeProducts: [...prevState.products[index].storeProducts, changedStoreProduct] },
                                 ...prevState.products.slice(index + 1),
                             ],
                         }));
@@ -274,7 +278,12 @@ class MainRoute extends React.Component {
                             onClick={() => this.setState(prevState => ({ ...prevState, shoppingCartIsOpen: true }))}
                             iconProps={{ iconName: 'shoppingCart' }}
                         />
-
+                        <DefaultButton
+                            style={{ position: 'absolute', top: '0', right: '100px' }}
+                            text="Log Out"
+                            type="button"
+                            onClick={this.logout}
+                        />
                         {this.state.isAdmin && (
                             <CreateProduct
                                 store={this.state.selectedStore}
@@ -365,7 +374,7 @@ class MainRoute extends React.Component {
                             isOpen={this.state.shoppingCartIsOpen}
                             onDismiss={() => this.setState(prevState => ({ ...prevState, shoppingCartIsOpen: false }))}
                             closeButtonAriaLabel="Close"
-                        >        
+                        >
                             <ShoppingCart
                                 isStudent={this.state.isStudent}
                             />
