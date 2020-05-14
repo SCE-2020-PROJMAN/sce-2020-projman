@@ -5,15 +5,6 @@ import authenticatedMiddleware from '../middleware/authenticated';
 
 const router = express.Router();
 
-router.patch('/:userEmail/isStudent', authenticatedMiddleware(), asyncWrapper(async (req, res) => {
-    const controllerResponse = await customerController.setStatus(
-        req.requestingUser,
-        req.params.userEmail,
-        req.body.isStudent,
-    );
-    res.status(controllerResponse.status).send(controllerResponse.body);
-}));
-
 router.get('/address', authenticatedMiddleware(), asyncWrapper(async (req, res) => {
     const controllerResponse = await customerController.getAddresses(req.requestingUser.email);
     res.status(controllerResponse.status).send(controllerResponse.body);

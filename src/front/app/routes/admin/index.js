@@ -4,6 +4,7 @@ import {MessageBar, MessageBarType, Pivot, PivotItem} from 'office-ui-fabric-rea
 import apiCall from '../../apiCall';
 import Analytics from './analytics';
 import Orders from './orders';
+import Users from './users';
 
 class AdminRoute extends React.Component {
     constructor(props) {
@@ -50,6 +51,9 @@ class AdminRoute extends React.Component {
                     </PivotItem>
                     <PivotItem headerText="Analytics">
                         <Analytics/>
+                    </PivotItem>
+                    <PivotItem headerText="Users">
+                        <Users/>
                     </PivotItem>
                 </Pivot>
             </React.Fragment>

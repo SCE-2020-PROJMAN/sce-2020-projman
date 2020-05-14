@@ -46,6 +46,7 @@ const iconMap = {
     times: faTimes,
     truck: faTruck,
     user: faUser,
+    checkmark: faCheck,
 };
 
 function initialize() {

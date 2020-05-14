@@ -11,7 +11,7 @@ export default (sequelize, dataTypes) => {
 
     model.associate = (models) => {
         model.belongsToMany(models.product, {through: models.storeProduct});
-        model.belongsToMany(models.admin, {through: models.storeAdmin});
+        model.hasMany(models.storeAdmin);
     };
 
     return model;

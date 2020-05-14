@@ -7,6 +7,7 @@ import orderRoute from './order';
 import productRoute from './product';
 import shoppingCartRoute from './shoppingCart';
 import storeRoute from './store';
+import userRoute from './user';
 
 const router = express.Router();
 
@@ -17,6 +18,7 @@ router.use('/order', orderRoute);
 router.use('/product', productRoute);
 router.use('/shopping-cart', shoppingCartRoute);
 router.use('/store', storeRoute);
+router.use('/user', userRoute);
 
 // Has to be last:
 router.use(errorMiddleware);
