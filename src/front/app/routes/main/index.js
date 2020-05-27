@@ -327,7 +327,7 @@ class MainRoute extends React.Component {
                             />
                         )}
 
-                        <form onSubmit={e => {e.preventDefaulT();this.setPage(0);}}>
+                        <form onSubmit={e => {e.preventDefault();this.setPage(0);}}>
                             <Stack horizontal style={{ alignItems: 'flex-end', marginBottom: '1em' }}>
                                 <Stack.Item grow={1}>
                                     <TextField
