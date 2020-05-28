@@ -164,8 +164,156 @@ async function get(customerEmail, dependencies = null) {
     return controllerResponse(false, 200, products);
 }
 
+/**
+ * Returns products similar to the products already in the customer's shopping cart:
+ * * Product with largest discount in a category
+ * * Product with same brand
+ * * Most popular product in a category
+ * * Least popular product in a category
+ * Returns at least 3 suggestions, none of which are in the shopping cart
+ * @param {String} customerEmail 
+ * @param {Object} dependencies 
+ */
+async function getSuggestions(customerEmail, dependencies = null) {
+    dependencies = dependencyInjector(['db'], dependencies);
+
+    // Get the products in the customer's shopping cart
+    const shoppingCart = await dependencies.db.models.shoppingCart.findOne({
+        include: [{
+            model: dependencies.db.models.customer,
+            required: true,
+            where: {
+                userEmail: customerEmail,
+            },
+        }, {
+            model: dependencies.db.models.shoppingCartProduct,
+            required: false,
+            include: [{
+                model: dependencies.db.models.storeProduct,
+                required: false,
+                include: [{
+                    model: dependencies.db.models.product,
+                    required: true,
+                }],
+            }],
+        }],
+    });
+    if (!shoppingCart || shoppingCart.shoppingCartProducts.length === 0) {
+        return controllerResponse(false, 200, []);
+    }
+    const productsInShoppingCart = shoppingCart.shoppingCartProducts.map(shoppingCartProduct => shoppingCartProduct.storeProduct.product);
+
+    // Get products similar to what's in the customer's shopping cart
+    const similarProducts = await Promise.all(productsInShoppingCart.map(async product => {
+        const largestDiscount = await dependencies.db.models.product.findOne({
+            order: [['studentDiscount', 'DESC']],
+            where: {
+                category: product.category,
+                barcode: {
+                    [dependencies.db.Sequelize.Op.ne]: product.barcode,
+                },
+            },
+        });
+
+        const sameBrand = await dependencies.db.models.product.findOne({
+            where: {
+                brand: product.brand,
+                barcode: {
+                    [dependencies.db.Sequelize.Op.ne]: product.barcode,
+                },
+            },
+        });
+
+        const productOrdersInCategory = await dependencies.db.models.productOrder.findAll({
+            include: [{
+                model: dependencies.db.models.product,
+                required: true,
+                where: {
+                    category: product.category,
+                    barcode: {
+                        [dependencies.db.Sequelize.Op.ne]: product.barcode,
+                    },
+                },
+            }],
+        });
+
+        const productsWithAmount = {};
+        productOrdersInCategory.forEach(productOrder => {
+            if (!productsWithAmount[productOrder.product.barcode]) {
+                productsWithAmount[productOrder.product.barcode] = {
+                    ...(productOrder.product.toJSON()),
+                    amount: 0,
+                };
+            }
+            productsWithAmount[productOrder.product.barcode].amount += productOrder.amount;
+        });
+
+        const mostPopular = Object.values(productsWithAmount).reduce((max, product) => {
+            if (max === null) {
+                return product;
+            }
+            return product.amount > max.amount ? product : max;
+        }, null);
+        const leastPopular = Object.values(productsWithAmount).reduce((min, product) => {
+            if (min === null) {
+                return product;
+            }
+            return product.amount < min.amount ? product : min;
+        }, null);
+
+        const products = [];
+        if (largestDiscount) {
+            products.push(largestDiscount);
+        }
+        if (sameBrand) {
+            products.push(sameBrand);
+        }
+        if (mostPopular) {
+            products.push(mostPopular);
+        }
+        if (leastPopular) {
+            products.push(leastPopular);
+        }
+        return products;
+    }));
+
+    // Flatten the array (since each element is an array)
+    const similarProductsArray = similarProducts.reduce((prev, cur) => [...prev, ...cur], []);
+    // Remove illegal suggestions
+    const suggestions = similarProductsArray.filter(product => {
+        function isInShoppingCart() {
+            return !!productsInShoppingCart.find(other => other.barcode === product.barcode);
+        }
+
+        function isDuplicate() {
+            return !!similarProductsArray.find(other => other !== product && other.barcode === product.barcode);
+        }
+
+        return !!product && !isInShoppingCart() && !isDuplicate();
+    });
+
+    // If not enough suggestions, add arbitrarily
+    if (suggestions.length < 3) {
+        const extraProducts = await dependencies.db.models.product.findAll({
+            order: [['price', 'DESC'], ['studentDiscount', 'DESC']],
+            where: {
+                barcode: {
+                    [dependencies.db.Sequelize.Op.notIn]: [
+                        ...productsInShoppingCart.map(product => product.barcode),
+                        ...suggestions.map(suggestion => suggestion.barcode),
+                    ],
+                },
+            },
+        });
+        suggestions.push(...extraProducts.slice(0, 3 - suggestions.length));
+    }
+
+    return controllerResponse(false, 200, suggestions);
+}
+
 export default {
     add,
     remove,
     get,
+    getSuggestions,
 };

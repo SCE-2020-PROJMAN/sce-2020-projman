@@ -26,4 +26,9 @@ router.get('/', authenticatedMiddleware(), asyncWrapper(async (req, res) => {
     res.status(controllerResponse.status).send(controllerResponse.body);
 }));
 
+router.get('/suggestion', authenticatedMiddleware(), asyncWrapper(async (req, res) => {
+    const controllerResponse = await shoppingCartController.getSuggestions(req.requestingUser.email);
+    res.status(controllerResponse.status).send(controllerResponse.body);
+}));
+
 export default router;

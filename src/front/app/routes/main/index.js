@@ -129,6 +129,7 @@ class MainRoute extends React.Component {
             ...prevState,
             selectedStore: newStore,
         }));
+        sessionStorage.setItem('selectedStore', newStore);
         setTimeout(() => {
             this.setPage(0);
         });
