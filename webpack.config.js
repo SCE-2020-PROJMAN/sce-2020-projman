@@ -35,6 +35,11 @@ const configs = [{
         filename: 'index.js',
         libraryTarget: 'commonjs2',
     },
+    plugins: [
+        new copyPlugin([
+            {from: 'src/api/keys', to: 'keys'},
+        ]),
+    ],
     node: {
         // Looks like webpack messes with Node globals: https://webpack.js.org/configuration/node/
         // We don't want that when building for node, so we disable it.
