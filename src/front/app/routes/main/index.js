@@ -307,7 +307,7 @@ class MainRoute extends React.Component {
                             )}
                             {this.state.isCustomer && (
                                 <React.Fragment>
-                                    <DefaultButton href="#/personalDetails">Personal Details</DefaultButton>
+                                    <DefaultButton href="#/personalDetails">Personal Detail</DefaultButton>
                                     <DefaultButton
                                         onClick={() => this.setState(prevState => ({ ...prevState, shoppingCartIsOpen: true }))}
                                         iconProps={{ iconName: 'shoppingCart' }}

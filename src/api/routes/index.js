@@ -8,6 +8,7 @@ import productRoute from './product';
 import shoppingCartRoute from './shoppingCart';
 import storeRoute from './store';
 import userRoute from './user';
+import userReceipt from './receipt';
 
 const router = express.Router();
 
@@ -19,6 +20,8 @@ router.use('/product', productRoute);
 router.use('/shopping-cart', shoppingCartRoute);
 router.use('/store', storeRoute);
 router.use('/user', userRoute);
+router.use('/receipt', userReceipt);
+
 
 // Has to be last:
 router.use(errorMiddleware);
