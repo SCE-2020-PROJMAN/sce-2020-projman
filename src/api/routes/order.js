@@ -43,4 +43,15 @@ router.get('/analytics', authenticatedMiddleware(), asyncWrapper(async (req, res
     res.status(controllerResponse.status).send(controllerResponse.body);
 }));
 
+router.get('/receipt', authenticatedMiddleware(), asyncWrapper(async (req, res) => {
+    const controllerResponse = await orderController.getReceipt(req.requestingUser.email, req.query.orderId, req.query.orderCreationTime);
+    if (controllerResponse.error) {
+        res.status(controllerResponse.status).send(controllerResponse.body);
+    } else {
+        res.setHeader('Content-Type', 'application/pdf');
+        res.set('Content-disposition', 'attachment; filename=receipt.pdf');
+        res.status(controllerResponse.status).end(controllerResponse.body);
+    }
+}));
+
 export default router;

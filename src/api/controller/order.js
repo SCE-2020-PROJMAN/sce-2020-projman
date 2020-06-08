@@ -1,8 +1,10 @@
 import moment from 'moment';
+import PDFDocument from 'pdfkit';
 import dependencyInjector from '../util/dependencyInjector';
 import controllerResponse from '../util/controllerResponse';
 import validationUtil from '../util/validation';
 import priceUtil from '../../util/price';
+import pdfDigitalSignUtil from '../util/pdfDigitalSign';
 
 async function getAll(requestingUser, dependencies = null) {
     dependencies = dependencyInjector(['db'], dependencies);
@@ -160,7 +162,10 @@ function create(customerEmail, shippingTime, addressId, dependencies = null) {
             }),
         ]);
 
-        return controllerResponse(false, 200);
+        return controllerResponse(false, 200, {
+            id: order.id,
+            creationTime: order.creationTime,
+        });
     });
 }
 
@@ -328,10 +333,88 @@ async function calculateAnalytics(requestingUser, dependencies = null) {
     });
 }
 
+async function getReceipt(customerEmail, orderId, orderCreationTime, dependencies = null) {
+    dependencies = dependencyInjector(['db'], dependencies);
+
+    const order = await dependencies.db.models.order.findOne({
+        where: {
+            id: orderId,
+            creationTime: orderCreationTime,
+        },
+        include: [{
+            model: dependencies.db.models.customer,
+            required: true,
+            where: {
+                userEmail: customerEmail,
+            },
+        }, {
+            model: dependencies.db.models.productOrder,
+            required: true,
+            include: [{
+                model: dependencies.db.models.product,
+                required: true,
+            }],
+        }],
+    });
+    if (!order) {
+        return controllerResponse(true, 404, 'existence/order');
+    }
+
+    const items = order.productOrders.map(productOrder => {
+        const isStudent = order.customer.isStudent;
+        const normalPrice = productOrder.product.price;
+        const studentDiscount = productOrder.product.studentDiscount;
+        const name = productOrder.product.name;
+        return {
+            name: name,
+            pricePerItem: priceUtil.getPrice(isStudent, normalPrice, studentDiscount),
+            amount: productOrder.amount,
+        };
+    });
+
+    const generatePdf = () => {
+        return new Promise((resolve, reject) => {
+            try {
+                const doc = new PDFDocument({
+                    info: {
+                        Title: 'Receipt',
+                        Author: 'SuperSami',
+                        Subject: 'Receipt',
+                        permissions: {
+                            modifying: false,
+                            annotating: false,
+                            fillingForms: false,
+                        },
+                    },
+                });
+
+                // https://stackoverflow.com/questions/23686843/how-to-convert-pdfkit-object-into-buffer-using-nodejs
+                const parts = [];
+                doc.on('data', parts.push.bind(parts));
+                doc.on('end', () => resolve(Buffer.concat(parts)));
+                doc.on('error', err => reject(err));
+
+                doc.fontSize(10);
+                doc.text(`Receipt for order #${order.id} (${order.creationTime})`).moveDown();
+                items.forEach(item => {
+                    doc.text(`${item.name}: x${item.amount} - ${item.amount * item.pricePerItem}`).moveDown();
+                });
+                doc.end();
+            } catch(err) {
+                reject(err);
+            }
+        });
+    };
+    const pdf = await generatePdf();
+    const signedPdf = await pdfDigitalSignUtil.sign(pdf);
+    return controllerResponse(false, 200, signedPdf);
+}
+
 export default {
     getAll,
     create,
     destroy,
     edit,
     calculateAnalytics,
+    getReceipt,
 };

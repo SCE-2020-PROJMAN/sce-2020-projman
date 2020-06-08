@@ -7,6 +7,16 @@ import apiCall from '../apiCall';
 import ShoppingCart from '../components/shoppingCart';
 import addressUtil from '../../../util/address';
 
+function downloadFile(name, data, type = 'text/plain') {
+    const tempElement = document.createElement('a');
+    tempElement.download = name;
+    const blob = new Blob([data], {type: type});
+    tempElement.href = window.URL.createObjectURL(blob);
+    document.body.appendChild(tempElement);
+    tempElement.click();
+    document.body.removeChild(tempElement);
+}
+
 class CheckoutRoute extends React.Component {
     constructor(props) {
         super(props);
@@ -101,14 +111,25 @@ class CheckoutRoute extends React.Component {
             shippingTime: moment().add(7, 'day').toDate(),
             addressId: this.state.addressId,
         })
-            .then(() => {
+            .then(orderCreationResponse => {
                 this.setState(prevState => ({
                     ...prevState,
                     success: true,
                 }));
-                setTimeout(() => {
-                    this.props.history.push('/');
-                }, 5000);
+                apiCall('get', 'order/receipt', {
+                    orderId: orderCreationResponse.data.id,
+                    orderCreationTime: orderCreationResponse.data.creationTime,
+                }, {
+                    responseType: 'blob',
+                })
+                    .then(receiptResponse => {
+                        downloadFile('receipt.pdf', receiptResponse.data, 'application/pdf');
+                    })
+                    .finally(() => {
+                        setTimeout(() => {
+                            this.props.history.push('/');
+                        }, 1000);
+                    });
             })
             .catch(err => {
                 console.error(err);
