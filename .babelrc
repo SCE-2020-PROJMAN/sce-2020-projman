@@ -8,7 +8,8 @@
     ],
     "plugins": [
         ["babel-plugin-transform-builtin-extend", {"globals": ["Error"]}],
-        "@babel/transform-runtime"
+        "@babel/transform-runtime",
+        "istanbul"
     ],
     "ignore": [
         "src/api/node_modules"
