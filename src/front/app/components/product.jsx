@@ -53,17 +53,21 @@ class ProductComponent extends React.Component {
     }
 
     onSave() {
-        const delta = {barcode: this.props.barcode};
-        const addIfChanged = (key, val) => {
-            if (val && val !== '') {
-                delta[key] = val;
+        const calculateDelta = () => {
+            const delta = {barcode: this.props.barcode};
+            const addIfChanged = (key, val) => {
+                if (val && val !== '') {
+                    delta[key] = val;
+                }
+            };
+            ['name', 'brand', 'category', 'freeText', 'price', 'studentDiscount']
+                .forEach(key => addIfChanged(key, this.state.editted[key]));
+            if (JSON.stringify(this.state.editted.imageUrls) !== JSON.stringify(this.props.imageUrls)) {
+                delta.imageUrls = this.state.editted.imageUrls;
             }
+            return delta;
         };
-        ['name', 'brand', 'category', 'freeText', 'price', 'studentDiscount']
-            .forEach(key => addIfChanged(key, this.state.editted[key]));
-        if (JSON.stringify(this.state.editted.imageUrls) !== JSON.stringify(this.props.imageUrls)) {
-            delta.imageUrls = this.state.editted.imageUrls;
-        }
+        const delta = calculateDelta();
 
         if (this.state.amount !== '' && this.props.onChangeAmount) {
             this.props.onChangeAmount(this.state.editted.amount);
