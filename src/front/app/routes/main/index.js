@@ -1,6 +1,6 @@
 import React from 'react';
 import propTypes from 'prop-types';
-import { MessageBar, MessageBarType, Spinner, SpinnerSize, TextField, Stack, PrimaryButton, ComboBox, Modal, IconButton, Panel } from 'office-ui-fabric-react';
+import { MessageBar, MessageBarType, Spinner, SpinnerSize, TextField, Stack, PrimaryButton, ComboBox, Panel } from 'office-ui-fabric-react';
 import StoreSelect from '../../components/storeSelect';
 import Product from '../../components/product';
 import Paginator from '../../components/paginator';
@@ -9,13 +9,14 @@ import apiCall from '../../apiCall';
 import CreateProduct from './createProduct';
 import ShoppingCart from '../../components/shoppingCart';
 import NavBar from './navbar';
+import AddToCartModal from './addToCartModal';
 
 class MainRoute extends React.Component {
     constructor(props) {
         super(props);
 
         this.openAddToCartDialog = this.openAddToCartDialog.bind(this);
-        this.addToCart = this.addToCart.bind(this);
+        this.onCloseCartDialog = this.onCloseCartDialog.bind(this);
         this.selectStore = this.selectStore.bind(this);
         this.setPage = this.setPage.bind(this);
         this.handleChange = this.handleChange.bind(this);
@@ -34,11 +35,9 @@ class MainRoute extends React.Component {
             isAdmin: false,
             isCustomer: false,
             isStudent: false,
-            addToCartModalIsOpen: false,
-            addToCartAmount: '',
             addToCartBarcode: null,
-            addToCartLoading: false,
             shoppingCartIsOpen: false,
+            addToCartModalIsOpen: false,
         };
     }
     
@@ -66,6 +65,15 @@ class MainRoute extends React.Component {
             }));
         };
     }
+
+    onCloseCartDialog() {
+        this.setState(prevState => ({
+            ...prevState,
+            addToCartModalIsOpen: false,
+            addToCartBarcode: null,
+        }));
+    }
+
     onDeleteProduct(barcode) {
         return () => {
             apiCall('delete', 'product/' + barcode)
@@ -84,40 +92,7 @@ class MainRoute extends React.Component {
                 });
         };
     }
-    addToCart() {
-        this.setState(prevState => ({
-            ...prevState,
-            addToCartLoading: true,
-            addToCartError: false,
-        }));
-        apiCall('post', 'shopping-cart', {
-            store: this.state.selectedStore,
-            barcode: this.state.addToCartBarcode,
-            amount: this.state.addToCartAmount,
-        })
-            .then(() => {
-                this.setState(prevState => ({
-                    ...prevState,
-                    addToCartModalIsOpen: false,
-                    addToCartAmount: '',
-                    addToCartBarcode: null,
-                }));
-            })
-            .catch(err => {
-                console.error(err);
-                this.setState(prevState => ({
-                    ...prevState,
-                    addToCartError: true,
-                }));
-            })
-            .finally(() => {
-                this.setState(prevState => ({
-                    ...prevState,
-                    addToCartLoading: false,
-                }));
-            });
-    }
-
+    
     selectStore(newStore) {
         this.setState(prevState => ({
             ...prevState,
@@ -403,49 +378,12 @@ class MainRoute extends React.Component {
                             />
                         </Panel>
 
-                        <Modal
+                        <AddToCartModal
+                            selectedStore={this.state.selectedStore}
+                            barcode={this.state.addToCartBarcode}
                             isOpen={this.state.addToCartModalIsOpen}
-                            isBlocking={false}
-                            className="modal"
-                        >
-                            <div className="header">
-                                <IconButton
-                                    className="closeButton"
-                                    iconProps={{ iconName: 'cancel' }}
-                                    onClick={() => this.setState(prevState => ({ ...prevState, addToCartModalIsOpen: false, addToCartAmount: '' }))}
-                                />
-                            </div>
-                            <div className="body">
-                                {this.state.addToCartLoading ? (
-                                    <Spinner
-                                        label="Processing . . ."
-                                        size={SpinnerSize.large}
-                                    />
-                                ) : (
-                                    <TextField
-                                        label="Amount"
-                                        value={this.state.addToCartAmount}
-                                        onChange={this.handleChange('addToCartAmount')}
-                                        type="number"
-                                        iconProps={{ iconName: 'hash' }}
-                                    />
-                                )}
-                                {this.state.addToCartError && (
-                                    <MessageBar messageBarType={MessageBarType.error}>
-                                        An error occurred. Try again later.
-                                    </MessageBar>
-                                )}
-                            </div>
-                            <div className="footer">
-                                <PrimaryButton
-                                    iconProps={{ iconName: 'cartPlus' }}
-                                    text="Add to cart"
-                                    type="button"
-                                    onClick={this.addToCart}
-                                    disabled={this.state.addToCartLoading}
-                                />
-                            </div>
-                        </Modal>
+                            onClose={this.onCloseCartDialog}
+                        />
                     </React.Fragment>
                 ) : (
                     <StoreSelect
