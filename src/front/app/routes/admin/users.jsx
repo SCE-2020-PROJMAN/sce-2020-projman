@@ -128,22 +128,16 @@ class Users extends React.Component {
         e.preventDefault();
 
         const data = {};
-        const addData = key => {
-            data[key] = (this.state.editedUser[key] === null ? this.state.selectedUser[key] : this.state.editedUser[key]) || false;
-        };
+        const addData = key => (data[key] = (this.state.editedUser[key] === null ? this.state.selectedUser[key] : this.state.editedUser[key]) || false);
         addData('isCustomer');
         addData('isStudent');
         addData('isAdmin');
         data.adminStores = [];
-        if ((
-            this.state.editedUser.isAdmin !== null && this.state.editedUser.isAdmin) || (
-            this.state.editedUser.isAdmin === null && this.state.selectedUser.isAdmin)
+        if (
+            (this.state.editedUser.isAdmin !== null && this.state.editedUser.isAdmin) ||
+            (this.state.editedUser.isAdmin === null && this.state.selectedUser.isAdmin)
         ) {
-            Object.keys(this.state.editedUser.stores).forEach(store => {
-                if (this.state.editedUser.stores[store]) {
-                    data.adminStores.push(store);
-                }
-            });
+            data.adminStores = Object.keys(this.state.editedUser.stores).filter(store => this.state.editedUser.stores[store]);
         }
 
         this.setState(prevState => ({
