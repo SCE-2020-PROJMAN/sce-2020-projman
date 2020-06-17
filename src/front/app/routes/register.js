@@ -43,18 +43,11 @@ class RegisterRoute extends React.Component {
             })
             .catch(err => {
                 if (err.response) {
-                    if (err.response.data === 'validation/email') {
-                        this.setState(prevState => ({
-                            ...prevState,
-                            error_email: true,
-                        }));
-                    }
-                    if (err.response.data === 'validation/password') {
-                        this.setState(prevState => ({
-                            ...prevState,
-                            error_password: true,
-                        }));
-                    }
+                    this.setState(prevState => ({
+                        ...prevState,
+                        error_email: err.response.data === 'validation/email',
+                        error_password: err.response.data === 'validation/password',
+                    }));
                 }
 
             })

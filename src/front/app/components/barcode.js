@@ -34,25 +34,9 @@ class Barcode extends React.Component {
                 options[key] = this.props[key];
             }
         };
-        addOptionIfExists('format');
-        addOptionIfExists('width');
-        addOptionIfExists('height');
-        addOptionIfExists('displayValue');
-        addOptionIfExists('text');
-        addOptionIfExists('fontOptions');
-        addOptionIfExists('font');
-        addOptionIfExists('textAlign');
-        addOptionIfExists('textPosition');
-        addOptionIfExists('textMargin');
-        addOptionIfExists('fontSize');
-        addOptionIfExists('background');
-        addOptionIfExists('lineColor');
-        addOptionIfExists('margin');
-        addOptionIfExists('marginTop');
-        addOptionIfExists('marginBottom');
-        addOptionIfExists('marginLeft');
-        addOptionIfExists('marginRight');
-        addOptionIfExists('valid');
+
+        ['format', 'width', 'height', 'displayValue', 'text', 'fontOptions', 'font', 'textAlign', 'textPosition', 'textMargin', 'fontSize', 'background', 'lineColor', 'margin', 'marginTop', 'marginBottom', 'marginLeft', 'marginRight', 'valid']
+            .forEach(key => addOptionIfExists(key));
 
         jsBarcode(canvas, this.props.value, options);
     }
@@ -63,9 +47,7 @@ class Barcode extends React.Component {
         }
 
         return (
-            <React.Fragment>
-                <canvas ref={this.canvasRef}></canvas>
-            </React.Fragment>
+            <canvas ref={this.canvasRef}></canvas>
         );
     }
 }

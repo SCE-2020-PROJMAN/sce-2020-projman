@@ -8,12 +8,8 @@ function apiCall(method, route, data = {}, options = {}) {
             ...(options.headers || {}),
             Authorization: sessionStorage.getItem('authToken'),
         },
+        [method === 'get' ? 'params' : 'data']: data,
     };
-    if (method === 'get') {
-        axiosConfig.params = data;
-    } else {
-        axiosConfig.data = data;
-    }
     return axios(`../${route}`, axiosConfig)
         .catch(err => {
             if (err && err.response && err.response.status === 403) {

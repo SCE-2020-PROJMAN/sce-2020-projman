@@ -152,13 +152,8 @@ class ShoppingCart extends React.Component {
     }
 
     render() {
-        const calculatePrice = (item) => {
-            return priceUtil.getPrice(this.props.isStudent, item.price, item.studentDiscount) * item.amountInCart;
-        };
-
-        const calculateSubtotal = () => {
-            return this.state.items.reduce((subtotal, item) => subtotal + calculatePrice(item), 0);
-        };
+        const calculatePrice = item => priceUtil.getPrice(this.props.isStudent, item.price, item.studentDiscount) * item.amountInCart;
+        const calculateSubtotal = () => this.state.items.reduce((subtotal, item) => subtotal + calculatePrice(item), 0);
 
         if (this.state.loading) {
             return <Spinner size={SpinnerSize.large}/>;

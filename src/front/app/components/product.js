@@ -59,12 +59,8 @@ class ProductComponent extends React.Component {
                 delta[key] = val;
             }
         };
-        addIfChanged('name', this.state.editted.name);
-        addIfChanged('brand', this.state.editted.brand);
-        addIfChanged('category', this.state.editted.category);
-        addIfChanged('freeText', this.state.editted.freeText);
-        addIfChanged('price', this.state.editted.price);
-        addIfChanged('studentDiscount', this.state.editted.studentDiscount);
+        ['name', 'brand', 'category', 'freeText', 'price', 'studentDiscount']
+            .forEach(key => addIfChanged(key, this.state.editted[key]));
         if (JSON.stringify(this.state.editted.imageUrls) !== JSON.stringify(this.props.imageUrls)) {
             delta.imageUrls = this.state.editted.imageUrls;
         }
