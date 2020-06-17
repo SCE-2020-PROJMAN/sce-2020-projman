@@ -1,6 +1,6 @@
 import React from 'react';
 import propTypes from 'prop-types';
-import { MessageBar, MessageBarType, Spinner, SpinnerSize, TextField, Stack, PrimaryButton, DefaultButton, ComboBox, Modal, IconButton, Panel } from 'office-ui-fabric-react';
+import { MessageBar, MessageBarType, Spinner, SpinnerSize, TextField, Stack, PrimaryButton, ComboBox, Modal, IconButton, Panel } from 'office-ui-fabric-react';
 import StoreSelect from '../../components/storeSelect';
 import Product from '../../components/product';
 import Paginator from '../../components/paginator';
@@ -8,12 +8,12 @@ import util from '../../util';
 import apiCall from '../../apiCall';
 import CreateProduct from './createProduct';
 import ShoppingCart from '../../components/shoppingCart';
+import NavBar from './navbar';
 
 class MainRoute extends React.Component {
     constructor(props) {
         super(props);
 
-        this.logout = this.logout.bind(this);
         this.openAddToCartDialog = this.openAddToCartDialog.bind(this);
         this.addToCart = this.addToCart.bind(this);
         this.selectStore = this.selectStore.bind(this);
@@ -55,12 +55,6 @@ class MainRoute extends React.Component {
             .catch(err => {
                 console.error(err);
             });
-    }
-
-    logout(){
-        sessionStorage.removeItem('authToken');
-        this.props.history.push('/login');
-        window.location.reload();
     }
 
     openAddToCartDialog(barcode) {
@@ -301,25 +295,12 @@ class MainRoute extends React.Component {
                     <React.Fragment>
                         <h2>Welcome to {util.capitalize(this.state.selectedStore)}</h2>
 
-                        <Stack horizontal style={{ position: 'absolute', top: '0', right: '0' }}>
-                            {this.state.isAdmin && (
-                                <DefaultButton href="#/admin">Admin Panel</DefaultButton>
-                            )}
-                            {this.state.isCustomer && (
-                                <React.Fragment>
-                                    <DefaultButton href="#/personalDetails">Personal Details</DefaultButton>
-                                    <DefaultButton
-                                        onClick={() => this.setState(prevState => ({ ...prevState, shoppingCartIsOpen: true }))}
-                                        iconProps={{ iconName: 'shoppingCart' }}
-                                    />
-                                </React.Fragment>
-                            )}
-                            <DefaultButton
-                                text="Log Out"
-                                type="button"
-                                onClick={this.logout}
-                            />
-                        </Stack>
+                        <NavBar
+                            isAdmin={this.state.isAdmin}
+                            isCustomer={this.state.isCustomer}
+                            onToggleShoppingCart={() => this.setState(prevState => ({...prevState, shoppingCartIsOpen: true}))}
+                            history={this.props.history}
+                        />
 
                         {this.state.isAdmin && (
                             <CreateProduct
