@@ -184,7 +184,7 @@ async function getSuggestions(customerEmail, dependencies = null) {
 
     // Get products similar to what's in the customer's shopping cart
     const similarProducts = await Promise.all(productsInShoppingCart.map(async product => {
-        const largestDiscount = await dependencies.db.models.product.findOne({
+        const getLargestDiscount = () => dependencies.db.models.product.findOne({
             order: [['studentDiscount', 'DESC']],
             where: {
                 category: product.category,
@@ -193,8 +193,7 @@ async function getSuggestions(customerEmail, dependencies = null) {
                 },
             },
         });
-
-        const sameBrand = await dependencies.db.models.product.findOne({
+        const getSameBrand = () => dependencies.db.models.product.findOne({
             where: {
                 brand: product.brand,
                 barcode: {
@@ -202,8 +201,7 @@ async function getSuggestions(customerEmail, dependencies = null) {
                 },
             },
         });
-
-        const productOrdersInCategory = await dependencies.db.models.productOrder.findAll({
+        const getOrdersInCategory = dependencies.db.models.productOrder.findAll({
             include: [{
                 model: dependencies.db.models.product,
                 required: true,
@@ -216,6 +214,8 @@ async function getSuggestions(customerEmail, dependencies = null) {
             }],
         });
 
+        const [largestDiscount, sameBrand, productOrdersInCategory] = await Promise.all([getLargestDiscount(), getSameBrand(), getOrdersInCategory()]);
+
         const productsWithAmount = {};
         productOrdersInCategory.forEach(productOrder => {
             if (!productsWithAmount[productOrder.product.barcode]) {
@@ -227,33 +227,10 @@ async function getSuggestions(customerEmail, dependencies = null) {
             productsWithAmount[productOrder.product.barcode].amount += productOrder.amount;
         });
 
-        const mostPopular = Object.values(productsWithAmount).reduce((max, product) => {
-            if (max === null) {
-                return product;
-            }
-            return product.amount > max.amount ? product : max;
-        }, null);
-        const leastPopular = Object.values(productsWithAmount).reduce((min, product) => {
-            if (min === null) {
-                return product;
-            }
-            return product.amount < min.amount ? product : min;
-        }, null);
-
-        const products = [];
-        if (largestDiscount) {
-            products.push(largestDiscount);
-        }
-        if (sameBrand) {
-            products.push(sameBrand);
-        }
-        if (mostPopular) {
-            products.push(mostPopular);
-        }
-        if (leastPopular) {
-            products.push(leastPopular);
-        }
-        return products;
+        const mostPopular  = Object.values(productsWithAmount).reduce((max, product) => max === null ? product : (product.amount > max.amount ? product : max), null);
+        const leastPopular = Object.values(productsWithAmount).reduce((min, product) => min === null ? product : (product.amount < min.amount ? product : min), null);
+        
+        return [largestDiscount, sameBrand, mostPopular, leastPopular].filter(o => o);
     }));
 
     // Flatten the array (since each element is an array)
@@ -275,6 +252,7 @@ async function getSuggestions(customerEmail, dependencies = null) {
     if (suggestions.length < 3) {
         const extraProducts = await dependencies.db.models.product.findAll({
             order: [['price', 'DESC'], ['studentDiscount', 'DESC']],
+            limit: 3 - suggestions.length,
             where: {
                 barcode: {
                     [dependencies.db.Sequelize.Op.notIn]: [
@@ -284,7 +262,7 @@ async function getSuggestions(customerEmail, dependencies = null) {
                 },
             },
         });
-        suggestions.push(...extraProducts.slice(0, 3 - suggestions.length));
+        suggestions.push(...extraProducts);
     }
 
     return controllerResponse(false, 200, suggestions);
