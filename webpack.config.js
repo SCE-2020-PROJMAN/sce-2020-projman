@@ -49,7 +49,7 @@ const configs = [{
 }, {
     ...basicConfig,
     target: 'web',
-    entry: ['@babel/polyfill', path.join(__dirname, 'src', 'front', 'index.js')],
+    entry: ['@babel/polyfill', path.join(__dirname, 'src', 'front', 'index.jsx')],
     output: {
         filename: 'front/index.js',
     },
