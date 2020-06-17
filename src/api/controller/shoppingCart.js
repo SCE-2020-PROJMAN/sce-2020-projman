@@ -79,6 +79,33 @@ async function add(customerEmail, storePlace, productBarcode, amount, dependenci
     return controllerResponse(false, 200);
 }
 
+function getShoppingCartByEmail(customerEmail, includeProducts, dependencies) {
+    const queryObject = {
+        include: [{
+            model: dependencies.db.models.customer,
+            required: true,
+            where: {
+                userEmail: customerEmail,
+            },
+        }],
+    };
+    if (includeProducts) {
+        queryObject.include.push({
+            model: dependencies.db.models.shoppingCartProduct,
+            required: false,
+            include: [{
+                model: dependencies.db.models.storeProduct,
+                required: false,
+                include: [{
+                    model: dependencies.db.models.product,
+                    required: true,
+                }],
+            }],
+        });
+    }
+    return dependencies.db.models.shoppingCart.findOne(queryObject);
+}
+
 async function remove(customerEmail, shoppingCartProductId, dependencies = null) {
     dependencies = dependencyInjector(['db'], dependencies);
 
@@ -89,15 +116,7 @@ async function remove(customerEmail, shoppingCartProductId, dependencies = null)
         return controllerResponse(true, 400, 'validation/shoppingCartProductId');
     }
 
-    const shoppingCart = await dependencies.db.models.shoppingCart.findOne({
-        include: [{
-            model: dependencies.db.models.customer,
-            required: true,
-            where: {
-                userEmail: customerEmail,
-            },
-        }],
-    });
+    const shoppingCart = await getShoppingCartByEmail(customerEmail, false, dependencies);
     if (!shoppingCart) {
         return controllerResponse(true, 404, 'existence/shoppingCart');
     }
@@ -123,27 +142,7 @@ async function get(customerEmail, dependencies = null) {
         return controllerResponse(true, 400, 'validation/customerEmail');
     }
 
-    const shoppingCart = await dependencies.db.models.shoppingCart.findOne({
-        include: [{
-            model: dependencies.db.models.customer,
-            required: true,
-            where: {
-                userEmail: customerEmail,
-            },
-        }, {
-            model: dependencies.db.models.shoppingCartProduct,
-            required: false,
-            include: [{
-                model: dependencies.db.models.storeProduct,
-                required: false,
-                include: [{
-                    model: dependencies.db.models.product,
-                    required: true,
-                }],
-            }],
-        }],
-    });
-
+    const shoppingCart = await getShoppingCartByEmail(customerEmail, true, dependencies);
     if (!shoppingCart || shoppingCart.shoppingCartProducts.length === 0) {
         return controllerResponse(false, 200, []);
     }
@@ -177,27 +176,7 @@ async function get(customerEmail, dependencies = null) {
 async function getSuggestions(customerEmail, dependencies = null) {
     dependencies = dependencyInjector(['db'], dependencies);
 
-    // Get the products in the customer's shopping cart
-    const shoppingCart = await dependencies.db.models.shoppingCart.findOne({
-        include: [{
-            model: dependencies.db.models.customer,
-            required: true,
-            where: {
-                userEmail: customerEmail,
-            },
-        }, {
-            model: dependencies.db.models.shoppingCartProduct,
-            required: false,
-            include: [{
-                model: dependencies.db.models.storeProduct,
-                required: false,
-                include: [{
-                    model: dependencies.db.models.product,
-                    required: true,
-                }],
-            }],
-        }],
-    });
+    const shoppingCart = await getShoppingCartByEmail(customerEmail, true, dependencies);
     if (!shoppingCart || shoppingCart.shoppingCartProducts.length === 0) {
         return controllerResponse(false, 200, []);
     }
