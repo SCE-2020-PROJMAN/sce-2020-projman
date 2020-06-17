@@ -17,25 +17,23 @@ function App() {
     }
 
     return (
-        <React.Fragment>
-            <HashRouter>
-                <Switch>
-                    {isLoggedIn() ? (
-                        <React.Fragment>
-                            <Route exact path="/" component={mainRoute}/>
-                            <Route path="/checkout" component={checkoutRoute}/>
-                            <Route path="/admin" component={adminRoute}/>
-                            <Route path="/personalDetails" component={personalDetailsRoute}/>
-                        </React.Fragment>
-                    ) : (
-                        <Route exact path="/" component={loginRoute}/>
-                    )}
-                    <Route path="/login" component={loginRoute}/>
-                    <Route path="/register" component={registerRoute}/>
-                    <Route path="/changePassword" component={changePasswordRoute}/>
-                </Switch>
-            </HashRouter>
-        </React.Fragment>
+        <HashRouter>
+            <Switch>
+                {isLoggedIn() ? (
+                    <React.Fragment>
+                        <Route exact path="/" component={mainRoute}/>
+                        <Route path="/checkout" component={checkoutRoute}/>
+                        <Route path="/admin" component={adminRoute}/>
+                        <Route path="/personalDetails" component={personalDetailsRoute}/>
+                    </React.Fragment>
+                ) : (
+                    <Route exact path="/" component={loginRoute}/>
+                )}
+                <Route path="/login" component={loginRoute}/>
+                <Route path="/register" component={registerRoute}/>
+                <Route path="/changePassword" component={changePasswordRoute}/>
+            </Switch>
+        </HashRouter>
     );
 }
 
