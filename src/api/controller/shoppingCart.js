@@ -201,7 +201,7 @@ async function getSuggestions(customerEmail, dependencies = null) {
                 },
             },
         });
-        const getOrdersInCategory = dependencies.db.models.productOrder.findAll({
+        const getOrdersInCategory = () => dependencies.db.models.productOrder.findAll({
             include: [{
                 model: dependencies.db.models.product,
                 required: true,
